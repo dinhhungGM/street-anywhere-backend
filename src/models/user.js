@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
   class user extends Model {
     static associate(models) {
       user.belongsTo(models.role);
-      models.role.hasMany(user);
     }
   }
   user.init(
@@ -21,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'user',
+      timestamps: false,
       hooks: {
         beforeBulkCreate: async (users) => {
           for (const instance of users) {
