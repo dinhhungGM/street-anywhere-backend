@@ -8,21 +8,23 @@
     "start": "node index",
     "dev": "nodemon --inspect index",
     "models": "sequelize-cli db:migrate",
+    "undo-models": "sequelize-cli db:migrate:undo:all",
     "seeds": "sequelize-cli db:seed:all",
-    "undo": "sequelize-cli db:migrate:undo:all"
+    "undo-seeds": "sequelize-cli db:seed:undo:all"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.0.2",
     "express": "^4.18.1",
     "lodash": "^4.17.21",
+    "morgan": "^1.10.0",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.21.4",
-    "morgan": "^1.10.0"
+    "sequelize": "^6.21.4"
   },
   "devDependencies": {
     "nodemon": "^2.0.19"

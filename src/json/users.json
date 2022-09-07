@@ -1,0 +1,25 @@
+{
+  "users": [
+    {
+      "username": "admin",
+      "password": "123456",
+      "firstName": "Super",
+      "lastName": "Admin",
+      "roleId": 1
+    },
+    {
+      "username": "phuong.nguyen",
+      "password": "123456",
+      "firstName": "Phuong",
+      "lastName": "Nguyen",
+      "roleId": 1
+    },
+    {
+      "username": "linh.truong",
+      "password": "123456",
+      "firstName": "Linh",
+      "lastName": "Truong",
+      "roleId": 1
+    }
+  ]
+}
