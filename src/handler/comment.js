@@ -44,9 +44,6 @@ module.exports = {
     if (!count) {
       throw helper.createError(404, 'No comments found');
     }
-    return res.status(200).json({
-      status: 'Success',
-      message: 'Delete successfully',
-    });
+    return res.status(204).end();
   }),
 };
