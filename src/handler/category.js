@@ -23,6 +23,13 @@ module.exports = {
       message: 'Create a new category successfully',
     });
   }),
+  getCategories: catchAsync(async (req, res) => {
+    const categories = await Category.findAll({ raw: true });
+    return res.status(200).json({
+      status: 'Success',
+      value: categories,
+    });
+  }),
   getCategoryById: catchAsync(async (req, res) => {
     const { id } = req.params;
     const findingCategory = await Category.findByPk(+id);
@@ -34,14 +41,41 @@ module.exports = {
       value: findingCategory,
     });
   }),
+  updateCategory: catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const { categoryName } = req.body;
+    const [findingCategory, existedCategories] = await Promise.all([
+      Category.findByPk(+id),
+      Category.findAll({
+        raw: true,
+        where: {
+          categoryName: {
+            [Op.iLike]: categoryName,
+          },
+        },
+      }),
+    ]);
+    if (!findingCategory) {
+      throw helper.createError(404, 'No categories found');
+    }
+    if (existedCategories.length) {
+      throw helper.createError(400, 'Your category name you wanna update was exist. Please choose another one');
+    }
+    await findingCategory.update({ categoryName });
+    await findingCategory.save();
+    return res.status(200).json({
+      status: 'Success',
+      message: 'Update successfully',
+    });
+  }),
   deleteCategory: catchAsync(async (req, res) => {
     const { id } = req.params;
-    const results = await Category.destroy({
+    const deletedCount = await Category.destroy({
       where: {
         id,
       },
     });
-    if (!results) {
+    if (!deletedCount) {
       throw helper.createError(404, 'No categories found');
     }
     return res.status(204).end();
