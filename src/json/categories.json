@@ -1,0 +1,37 @@
+{
+  "categories": [
+    {
+      "categoryName": "Art"
+    },
+    {
+      "categoryName": "Entertainment"
+    },
+    {
+      "categoryName": "Games"
+    },
+    {
+      "categoryName": "History"
+    },
+    {
+      "categoryName": "How to"
+    },
+    {
+      "categoryName": "Internet"
+    },
+    {
+      "categoryName": "Music"
+    },
+    {
+      "categoryName": "Nature"
+    },
+    {
+      "categoryName": "Sports"
+    },
+    {
+      "categoryName": "Technology"
+    },
+    {
+      "categoryName": "Traveling"
+    }
+  ]
+}
