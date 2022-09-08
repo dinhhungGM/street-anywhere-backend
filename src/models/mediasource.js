@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
   mediaSource.init(
     {
       sources: DataTypes.BLOB,
+      mediumId: DataTypes.INTEGER,
     },
     {
       sequelize,

@@ -10,7 +10,9 @@ module.exports = (sequelize, DataTypes) => {
   media.init(
     {
       title: DataTypes.STRING,
-      mediaSourceId: DataTypes.INTEGER,
+      type: DataTypes.STRING,
+      size: DataTypes.FLOAT,
+      postId: DataTypes.INTEGER,
     },
     {
       sequelize,

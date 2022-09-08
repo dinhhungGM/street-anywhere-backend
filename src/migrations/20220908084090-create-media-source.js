@@ -11,7 +11,7 @@ module.exports = {
       sources: {
         type: Sequelize.BLOB,
       },
-      mediaId: {
+      mediumId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {

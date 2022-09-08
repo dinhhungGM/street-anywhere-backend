@@ -32,14 +32,6 @@ module.exports = {
           key: 'id',
         },
       },
-      tagId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      categoryId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

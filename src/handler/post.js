@@ -1,17 +1,24 @@
 const catchAsync = require('./../utils/catchAsync');
 const helper = require('./../utils/helper');
-const { mediaSource: MediaSource, media: Media, post: Post } = require('./../models');
+const { post: Post } = require('./../models');
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
     if (!req.file) {
       throw helper.createError(400, 'Please update image or video to continue');
     }
-    const { buffer, originalname, size } = req.file;
-    const reqPayload = req.body;
-    const newPost = await Post.create({
-      title: req.reqPayload.title,
+    const { buffer, originalname, size, mimetype } = req.file;
+    const { title, location, longitude, latitude, tags, categories, userId } = req.body;
+    const newPost = await Post.create({ title, location, longitude, latitude, userId });
+    const [newMedium] = await Promise.all([
+      newPost.createMedium({ title: originalname, type: mimetype, size }),
+      newPost.addTags(tags),
+      newPost.addCategories(categories),
+    ]);
+    await newMedium.createMediaSource({ sources: buffer });
+    return res.status(201).json({
+      status: 'Success',
+      message: 'Create post successfully'
     });
-    return res.status(201).end();
   }),
 };
