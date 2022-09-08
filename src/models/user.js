@@ -1,5 +1,5 @@
 'use strict';
-const bcryptjs = require('bcryptjs');
+const helper = require('./../utils/helper');
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class user extends Model {
@@ -22,16 +22,10 @@ module.exports = (sequelize, DataTypes) => {
       modelName: 'user',
       timestamps: false,
       hooks: {
-        beforeBulkCreate: async (users) => {
-          for (const instance of users) {
-            const hash = await bcryptjs.hash(instance.password, 10);
-            instance.password = hash;
-          }
-          return users;
-        },
         beforeCreate: async (instance) => {
-          const hash = await bcryptjs.hash(instance.password, 10);
-          instance.password = hash;
+          const endRole = await sequelize.model('role').findOne({ where: { roleName: 'End user' }, raw: true });
+          instance.password = await helper.hashPassword(instance.password);
+          instance.roleId = endRole.id;
           return instance;
         },
       },
