@@ -1,4 +1,5 @@
 const helper = require('./../utils/helper');
+const { validationResult } = require('express-validator');
 
 module.exports = {
   handleError: (err, req, res, next) => {
@@ -10,8 +11,17 @@ module.exports = {
       message,
     });
   },
-  handleNotFound: (req, res, next) => {
+  handleNotFound: (req, _, next) => {
     const notFoundError = helper.createError('Error', 404, 'Not found request url');
     return next(notFoundError);
+  },
+  catchValidationError: (req, _, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      const [firstError] = errors.array();
+      const detailError = helper.createError(400, firstError.msg);
+      return next(detailError);
+    }
+    return next();
   },
 };
