@@ -5,6 +5,11 @@ const ErrorHandler = require('./../handler/error');
 
 router
   .route('/:id')
+  .get(
+    param('id', 'Comment ID should be integer number').isNumeric().isInt(),
+    ErrorHandler.catchValidationError,
+    CommentHandler.getCommentsByPostId,
+  )
   .patch(
     param('id', 'Comment ID should be integer number').isNumeric().isInt(),
     body('content', 'Content does not empty').exists().notEmpty(),
@@ -20,7 +25,6 @@ router
   );
 router
   .route('')
-  .get(CommentHandler.getComments)
   .post(
     body('content', 'Content does not empty').exists().notEmpty(),
     body('postId', 'Post Id does not empty').exists().notEmpty(),

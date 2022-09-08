@@ -10,8 +10,15 @@ module.exports = {
       message: 'Create successfully',
     });
   }),
-  getComments: catchAsync(async (req, res) => {
-    const comments = await Comment.findAll({ raw: true, order: [['createdAt', 'DESC']] });
+  getCommentsByPostId: catchAsync(async (req, res) => {
+    const { id } = req.paramsl;
+    const comments = await Comment.findAll({
+      raw: true,
+      where: {
+        postId: id,
+      },
+      order: [['createdAt', 'DESC']],
+    });
     return res.status(200).json({
       status: 'Success',
       message: 'Get data successfully',
