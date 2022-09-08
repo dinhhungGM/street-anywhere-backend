@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.role);
       this.hasMany(models.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      this.hasMany(models.comment, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
     }
   }
   user.init(

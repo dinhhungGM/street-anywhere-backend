@@ -4,6 +4,7 @@ const postRoutes = require('./postRoutes');
 const categoryRoutes = require('./categoryRoutes');
 const tagRoutes = require('./tagRoutes');
 const mediaRoutes = require('./mediaRoutes');
+const commentRoutes = require('./commentRoutes');
 
 const createRoutes = (app) => {
   app.use('/api/auth', authRoutes);
@@ -11,6 +12,7 @@ const createRoutes = (app) => {
   app.use('/api/categories', categoryRoutes);
   app.use('/api/tags', tagRoutes);
   app.use('/api/media', mediaRoutes);
+  app.use('/api/comments', commentRoutes);
   app.use('*', ErrorHandler.handleNotFound);
   app.use(ErrorHandler.handleError);
 };

@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasOne(models.media, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
       this.belongsToMany(models.tag, { through: models.postTag });
       this.belongsToMany(models.category, { through: models.postCategory });
+      this.hasMany(models.comment, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
     }
   }
   post.init(
