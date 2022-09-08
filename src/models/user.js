@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   class user extends Model {
     static associate(models) {
       user.belongsTo(models.role);
+      user.hasMany(models.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
     }
   }
   user.init(

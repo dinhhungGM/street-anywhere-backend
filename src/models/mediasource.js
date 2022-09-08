@@ -1,20 +1,20 @@
 'use strict';
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
-  class tag extends Model {
+  class mediaSource extends Model {
     static associate(models) {
-      this.belongsToMany(models.post, { through: 'postTags' });
+      this.belongsTo(models.media);
     }
   }
-  tag.init(
+  mediaSource.init(
     {
-      tagName: DataTypes.STRING,
+      sources: DataTypes.BLOB,
     },
     {
       sequelize,
-      modelName: 'tag',
+      modelName: 'mediaSource',
       timestamps: false,
     },
   );
-  return tag;
+  return mediaSource;
 };
