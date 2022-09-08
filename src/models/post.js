@@ -3,17 +3,19 @@ const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class post extends Model {
     static associate(models) {
-      this.hasOne(models.media, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
       this.belongsTo(models.user);
-      this.belongsToMany(models.postTag, { through: 'postTags' });
-      this.belongsToMany(models.category, { through: 'postCategories' });
+      this.hasOne(models.media, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+      this.belongsToMany(models.tag, { through: models.postTag });
+      this.belongsToMany(models.category, { through: models.postCategory });
     }
   }
   post.init(
     {
       title: DataTypes.STRING,
+      location: DataTypes.STRING,
+      longitude: DataTypes.STRING,
+      latitude: DataTypes.STRING,
       userId: DataTypes.INTEGER,
-      mediaId: DataTypes.INTEGER,
       tagId: DataTypes.INTEGER,
       categoryId: DataTypes.INTEGER,
     },

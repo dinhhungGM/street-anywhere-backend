@@ -11,6 +11,14 @@ module.exports = {
       sources: {
         type: Sequelize.BLOB,
       },
+      mediaId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'media',
+          key: 'id',
+        },
+      },
     });
   },
   async down(queryInterface, Sequelize) {

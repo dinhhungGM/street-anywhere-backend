@@ -12,11 +12,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      mediaSourceId: {
+      postId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'mediaSources',
+          model: 'posts',
           key: 'id',
         },
       },

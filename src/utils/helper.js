@@ -27,4 +27,7 @@ module.exports = {
   destruct: (exclusiveProps, obj) => {
     return _.omit(obj, exclusiveProps);
   },
+  getInstanceId: (newInstance) => {
+    return newInstance.dataValues.id;
+  },
 };

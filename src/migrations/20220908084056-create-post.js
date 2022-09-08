@@ -10,20 +10,25 @@ module.exports = {
       },
       title: {
         type: Sequelize.STRING,
+        allowNull: false,
+      },
+      location: {
+        type: Sequelize.STRING,
+        defaultValue: null,
+      },
+      longitude: {
+        type: Sequelize.FLOAT,
+        defaultValue: null,
+      },
+      latitude: {
+        type: Sequelize.FLOAT,
+        defaultValue: null,
       },
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'users',
-          key: 'id',
-        },
-      },
-      mediaId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'media',
           key: 'id',
         },
       },
