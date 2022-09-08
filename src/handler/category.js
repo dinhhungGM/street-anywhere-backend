@@ -23,4 +23,27 @@ module.exports = {
       message: 'Create a new category successfully',
     });
   }),
+  getCategoryById: catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const findingCategory = await Category.findByPk(+id);
+    if (!findingCategory) {
+      throw helper.createError(404, 'No categories found');
+    }
+    return res.status(200).json({
+      status: 'Success',
+      value: findingCategory,
+    });
+  }),
+  deleteCategory: catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const results = await Category.destroy({
+      where: {
+        id,
+      },
+    });
+    if (!results) {
+      throw helper.createError(404, 'No categories found');
+    }
+    return res.status(204).end();
+  }),
 };
