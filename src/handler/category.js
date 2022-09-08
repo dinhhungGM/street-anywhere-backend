@@ -49,6 +49,9 @@ module.exports = {
       Category.findAll({
         raw: true,
         where: {
+          id: {
+            [Op.ne]: id,
+          },
           categoryName: {
             [Op.iLike]: categoryName,
           },
