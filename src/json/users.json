@@ -2,21 +2,21 @@
   "users": [
     {
       "username": "admin",
-      "password": "123456",
+      "password": "$2a$10$8pbT91UhnV568J1ubRk38.XTybSItdaAk1.emAATgup6QxorFwqnO",
       "firstName": "Super",
       "lastName": "Admin",
       "roleId": 1
     },
     {
       "username": "phuong.nguyen",
-      "password": "123456",
+      "password": "$2a$10$8pbT91UhnV568J1ubRk38.XTybSItdaAk1.emAATgup6QxorFwqnO",
       "firstName": "Phuong",
       "lastName": "Nguyen",
       "roleId": 1
     },
     {
       "username": "linh.truong",
-      "password": "123456",
+      "password": "$2a$10$8pbT91UhnV568J1ubRk38.XTybSItdaAk1.emAATgup6QxorFwqnO",
       "firstName": "Linh",
       "lastName": "Truong",
       "roleId": 1
