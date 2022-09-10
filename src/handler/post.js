@@ -12,8 +12,8 @@ module.exports = {
     const newPost = await Post.create({ title, location, longitude, latitude, userId });
     const [newMedium] = await Promise.all([
       newPost.createMedium({ title: originalname, type: mimetype, size }),
-      newPost.addTags(tags),
-      newPost.addCategories(categories),
+      newPost.addTags([1, 2]),
+      newPost.addCategories([1, 2]),
     ]);
     await newMedium.createMediaSource({ sources: buffer });
     return res.status(201).json({

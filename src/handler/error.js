@@ -12,7 +12,7 @@ module.exports = {
     });
   },
   handleNotFound: (req, _, next) => {
-    const notFoundError = helper.createError('Error', 404, 'Not found request url');
+    const notFoundError = helper.createError(404, 'Not found request url');
     return next(notFoundError);
   },
   catchValidationError: (req, _, next) => {
