@@ -7,10 +7,19 @@ module.exports = {
     if (!req.file) {
       throw helper.createError(400, 'Please update image or video to continue');
     }
-    const { buffer, originalname, size, mimetype } = req.file;
-    const { title, location, longitude, latitude, tags, categories, userId } = req.body;
+    const { buffer, size, mimetype } = req.file;
+    const { tags, categories, ...restInfo } = req.body;
+    const postPayload = {
+      ...restInfo,
+      mediaSource: buffer,
+      size,
+      type: mimetype,
+    };
+    const newPost = await Post.create(postPayload);
+    await Promise.all([newPost.addTags(tags), newPost.addCategories(categories)]);
     return res.status(201).json({
-      message: 'Status',
+      status: 'Success',
+      message: 'Create a new post successfully',
     });
   }),
   getAllPosts: catchAsync(async (req, res) => {
@@ -25,5 +34,18 @@ module.exports = {
       status: 'Success',
       value: posts,
     });
+  }),
+  getMediaSource: catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const post = await Post.findByPk(+id, {
+      raw: true,
+      attributes: {
+        include: ['type', 'mediaSource'],
+      },
+    });
+    if (!post) {
+      throw helper.createError(404, 'No media source found!');
+    }
+    return res.header('Content-Type', post.type).status(200).send(post.mediaSource);
   }),
 };
