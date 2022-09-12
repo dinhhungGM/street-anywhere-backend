@@ -9,16 +9,21 @@ module.exports = {
     }
     const { buffer, originalname, size, mimetype } = req.file;
     const { title, location, longitude, latitude, tags, categories, userId } = req.body;
-    const newPost = await Post.create({ title, location, longitude, latitude, userId });
-    const [newMedium] = await Promise.all([
-      newPost.createMedium({ title: originalname, type: mimetype, size }),
-      newPost.addTags(tags),
-      newPost.addCategories(categories),
-    ]);
-    await newMedium.createMediaSource({ sources: buffer });
     return res.status(201).json({
+      message: 'Status',
+    });
+  }),
+  getAllPosts: catchAsync(async (req, res) => {
+    const { page } = req.query;
+    const posts = await Post.findAll({
+      raw: true,
+      orderBy: ['createdAt'],
+      limit: 30,
+      offset: parseInt(page) ? page * pageSize : 0,
+    });
+    return res.status(200).json({
       status: 'Success',
-      message: 'Create post successfully'
+      value: posts,
     });
   }),
 };
