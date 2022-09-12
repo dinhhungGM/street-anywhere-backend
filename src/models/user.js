@@ -12,12 +12,42 @@ module.exports = (sequelize, DataTypes) => {
   user.init(
     {
       username: DataTypes.STRING,
-      password: DataTypes.STRING,
+      password: {
+        type: DataTypes.STRING,
+        set(value) {
+          helper
+            .hashPassword(value)
+            .then((hash) => {
+              this.setDataValue('password', hash);
+            })
+            .catch((err) => {
+              console.error(err);
+              throw err;
+            });
+        },
+      },
       firstName: DataTypes.STRING,
       lastName: DataTypes.STRING,
       profilePhotoUrl: DataTypes.STRING,
       bio: DataTypes.STRING,
       roleId: DataTypes.INTEGER,
+      fullName: {
+        type: DataTypes.VIRTUAL,
+        get() {
+          return `${ this.firstName } ${ this.lastName }`;
+        },
+        set() {
+          return new Error(`Do not try to set the fullName value`);
+        },
+      },
+      photoSource: {
+        type: DataTypes.BLOB,
+        defaultValue: null,
+      },
+      imgType: {
+        type: DataTypes.STRING,
+        defaultValue: null,
+      },
     },
     {
       sequelize,
