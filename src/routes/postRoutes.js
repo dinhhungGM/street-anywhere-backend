@@ -10,6 +10,12 @@ router.get(
   ErrorHandler.catchValidationError,
   PostHandler.getMediaSource,
 );
+router.get(
+  '/:id',
+  param('id', 'Please provide valid Post ID to continue').exists().isNumeric().isInt(),
+  ErrorHandler.catchValidationError,
+  PostHandler.getPostById,
+);
 router
   .route('')
   .get(PostHandler.getAllPosts)

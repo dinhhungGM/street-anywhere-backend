@@ -1,6 +1,6 @@
 const catchAsync = require('./../utils/catchAsync');
 const helper = require('./../utils/helper');
-const { post: Post } = require('./../models');
+const { post: Post, tag: Tag } = require('./../models');
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
@@ -26,6 +26,9 @@ module.exports = {
     const { page } = req.query;
     const posts = await Post.findAll({
       raw: true,
+      attributes: {
+        exclude: ['mediaSource'],
+      },
       orderBy: ['createdAt'],
       limit: 30,
       offset: parseInt(page) ? page * pageSize : 0,
@@ -47,5 +50,21 @@ module.exports = {
       throw helper.createError(404, 'No media source found!');
     }
     return res.header('Content-Type', post.type).status(200).send(post.mediaSource);
+  }),
+  getPostById: catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const post = await Post.findByPk(+id, {
+      attributes: {
+        exclude: ['mediaSource'],
+      },
+      include: Tag,
+    });
+    if (!post) {
+      throw helper.createError(404, 'No posts found');
+    }
+    return res.status(200).json({
+      status: 'Success',
+      value: post,
+    });
   }),
 };
