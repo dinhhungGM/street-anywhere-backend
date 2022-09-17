@@ -7,8 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index",
     "dev": "nodemon --inspect index",
-    "models": "sequelize-cli db:migrate",
-    "undo-models": "sequelize-cli db:migrate:undo:all",
+    "migrate": "sequelize-cli db:migrate",
+    "undo-migrate": "sequelize-cli db:migrate:undo:all",
     "seeds": "sequelize-cli db:seed:all",
     "undo-seeds": "sequelize-cli db:seed:undo:all"
   },

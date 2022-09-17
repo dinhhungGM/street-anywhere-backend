@@ -30,4 +30,7 @@ module.exports = {
   getInstanceId: (newInstance) => {
     return newInstance.dataValues.id;
   },
+  extractValues: (values, mappingField) => {
+    return _.map(values, mappingField);
+  },
 };

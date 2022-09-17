@@ -1,6 +1,7 @@
 const catchAsync = require('./../utils/catchAsync');
 const helper = require('./../utils/helper');
-const { post: Post, tag: Tag } = require('./../models');
+const { post: Post, tag: Tag, category: Category, user: User } = require('./../models');
+const _ = require('lodash');
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
@@ -16,28 +17,59 @@ module.exports = {
       type: mimetype,
     };
     const newPost = await Post.create(postPayload);
-    await Promise.all([newPost.addTags(tags), newPost.addCategories(categories)]);
+    await Promise.all([newPost.addTags(JSON.parse(tags)), newPost.addCategories(JSON.parse(categories))]);
     return res.status(201).json({
       status: 'Success',
       message: 'Create a new post successfully',
     });
   }),
+
   getAllPosts: catchAsync(async (req, res) => {
     const { page } = req.query;
     const posts = await Post.findAll({
-      raw: true,
       attributes: {
         exclude: ['mediaSource'],
       },
       orderBy: ['createdAt'],
       limit: 30,
       offset: parseInt(page) ? page * pageSize : 0,
+      include: [
+        {
+          model: Tag,
+        },
+        {
+          model: Category,
+        },
+        {
+          model: User,
+        },
+      ],
+    });
+    const responseValues = _.map(posts, (post) => {
+      const {
+        dataValues: postDataValues,
+        tags,
+        categories,
+        user: { dataValues: userInfo },
+      } = post;
+      return {
+        ...postDataValues,
+        imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ postDataValues.id }`,
+        tags: _.map(tags, 'tagName'),
+        categories: _.map(categories, 'categoryName'),
+        user: {
+          userId: userInfo.id,
+          fullName: `${ userInfo.firstName } ${ userInfo.lastName }`,
+          profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
+        },
+      };
     });
     return res.status(200).json({
       status: 'Success',
-      value: posts,
+      value: responseValues,
     });
   }),
+
   getMediaSource: catchAsync(async (req, res) => {
     const { id } = req.params;
     const post = await Post.findByPk(+id, {
@@ -51,20 +83,47 @@ module.exports = {
     }
     return res.header('Content-Type', post.type).status(200).send(post.mediaSource);
   }),
+
   getPostById: catchAsync(async (req, res) => {
     const { id } = req.params;
     const post = await Post.findByPk(+id, {
       attributes: {
         exclude: ['mediaSource'],
       },
-      include: Tag,
+      include: [
+        {
+          model: Tag,
+        },
+        {
+          model: Category,
+        },
+        {
+          model: User,
+        },
+      ],
     });
     if (!post) {
       throw helper.createError(404, 'No posts found');
     }
+    const {
+      dataValues: postDataValues,
+      tags,
+      categories,
+      user: { dataValues: userInfo },
+    } = post;
+    const responseValue = {
+      ...postDataValues,
+      tags: _.map(tags, 'tagName'),
+      categories: _.map(categories, 'categoryName'),
+      user: {
+        id: userInfo.id,
+        fullName: `${ userInfo.firstName } ${ userInfo.fullName }`,
+        profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
+      },
+    };
     return res.status(200).json({
       status: 'Success',
-      value: post,
+      value: responseValue,
     });
   }),
 };

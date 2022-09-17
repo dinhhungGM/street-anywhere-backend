@@ -28,8 +28,8 @@ router
     body('longitude', 'The longitude should be numeric value').isNumeric(),
     body('latitude', 'The latitude does not empty').exists().notEmpty(),
     body('latitude', 'The latitude should be numeric value').isNumeric(),
-    body('tags', 'A post should have tags').exists().isArray(),
-    body('categories', 'A post should have categories').exists().isArray(),
+    body('tags', 'A post should have tags').exists().isJSON(),
+    body('categories', 'A post should have categories').exists().isJSON(),
     ErrorHandler.catchValidationError,
     PostHandler.handleCreateNewPost,
   );

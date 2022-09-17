@@ -19,6 +19,8 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       size: DataTypes.FLOAT,
       mediaSource: DataTypes.BLOB,
+      shortTitle: DataTypes.STRING,
+      description: DataTypes.STRING,
     },
     {
       sequelize,
