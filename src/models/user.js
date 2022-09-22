@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.role);
       this.hasMany(models.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       this.hasMany(models.comment, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
+      this.belongsTo(models.rank);
     }
   }
   user.init(
@@ -34,7 +35,7 @@ module.exports = (sequelize, DataTypes) => {
       fullName: {
         type: DataTypes.VIRTUAL,
         get() {
-          return `${ this.firstName } ${ this.lastName }`;
+          return `${this.firstName} ${this.lastName}`;
         },
         set() {
           return new Error(`Do not try to set the fullName value`);
@@ -48,6 +49,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         defaultValue: null,
       },
+      rankId: DataTypes.INTEGER,
     },
     {
       sequelize,

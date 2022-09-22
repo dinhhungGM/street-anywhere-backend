@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsToMany(models.tag, { through: models.postTag });
       this.belongsToMany(models.category, { through: models.postCategory });
       this.hasMany(models.comment, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
+      this.belongsToMany(models.reaction, { through: models.postReaction });
     }
   }
   post.init(
@@ -21,6 +22,8 @@ module.exports = (sequelize, DataTypes) => {
       mediaSource: DataTypes.BLOB,
       shortTitle: DataTypes.STRING,
       description: DataTypes.STRING,
+      videoYtbUrl: DataTypes.STRING, 
+      numberOfFollowers: DataTypes.INTEGER
     },
     {
       sequelize,

@@ -59,7 +59,7 @@ module.exports = {
         categories: _.map(categories, 'categoryName'),
         user: {
           userId: userInfo.id,
-          fullName: `${ userInfo.firstName } ${ userInfo.lastName }`,
+          fullName: `${ userInfo.firstName || '' } ${ userInfo.lastName || '' }`,
           profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
         },
       };
@@ -113,11 +113,12 @@ module.exports = {
     } = post;
     const responseValue = {
       ...postDataValues,
+      imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ postDataValues.id }`,
       tags: _.map(tags, 'tagName'),
       categories: _.map(categories, 'categoryName'),
       user: {
         id: userInfo.id,
-        fullName: `${ userInfo.firstName } ${ userInfo.fullName }`,
+        fullName: `${ userInfo.firstName } ${ userInfo.lastName }`,
         profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
       },
     };
