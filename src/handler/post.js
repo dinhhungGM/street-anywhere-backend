@@ -5,17 +5,35 @@ const _ = require('lodash');
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
-    if (!req.file) {
-      throw helper.createError(400, 'Please update image or video to continue');
+    const { tags, categories, type, videoYtbUrl, ...restInfo } = req.body;
+    let mediaPayload;
+    switch (type) {
+      case 'video': {
+        if (!videoYtbUrl) {
+          throw helper.createError(400, 'Please provide video youtube url');
+        }
+        mediaPayload = {
+          mediaSource: null,
+          size: null,
+          videoYtbUrl,
+          type,
+        };
+        break;
+      }
+      default: {
+        if (!req.file) {
+          throw helper.createError(400, 'Please update image or video to continue');
+        }
+        const { buffer, size, mimetype } = req.file;
+        mediaPayload = {
+          mediaSource: buffer,
+          size,
+          type: mimetype,
+        };
+        break;
+      }
     }
-    const { buffer, size, mimetype } = req.file;
-    const { tags, categories, ...restInfo } = req.body;
-    const postPayload = {
-      ...restInfo,
-      mediaSource: buffer,
-      size,
-      type: mimetype,
-    };
+    const postPayload = { ...restInfo, ...mediaPayload };
     const newPost = await Post.create(postPayload);
     await Promise.all([newPost.addTags(JSON.parse(tags)), newPost.addCategories(JSON.parse(categories))]);
     return res.status(201).json({
@@ -30,7 +48,7 @@ module.exports = {
       attributes: {
         exclude: ['mediaSource'],
       },
-      orderBy: ['createdAt'],
+      order: [['createdAt', 'DESC']],
       limit: 30,
       offset: parseInt(page) ? page * pageSize : 0,
       include: [
@@ -54,13 +72,14 @@ module.exports = {
       } = post;
       return {
         ...postDataValues,
-        imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ postDataValues.id }`,
+        imageUrl:
+          postDataValues.type === 'video' ? null : `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,
         tags: _.map(tags, 'tagName'),
         categories: _.map(categories, 'categoryName'),
         user: {
           userId: userInfo.id,
-          fullName: `${ userInfo.firstName || '' } ${ userInfo.lastName || '' }`,
-          profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
+          fullName: `${userInfo.firstName || ''} ${userInfo.lastName || ''}`,
+          profilePhotoUrl: userInfo.profilePhotoUrl || `${process.env.BACKEND_URL}/static/images/avatar.png`,
         },
       };
     });
@@ -113,13 +132,13 @@ module.exports = {
     } = post;
     const responseValue = {
       ...postDataValues,
-      imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ postDataValues.id }`,
+      imageUrl: `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,
       tags: _.map(tags, 'tagName'),
       categories: _.map(categories, 'categoryName'),
       user: {
         id: userInfo.id,
-        fullName: `${ userInfo.firstName } ${ userInfo.lastName }`,
-        profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
+        fullName: `${userInfo.firstName} ${userInfo.lastName}`,
+        profilePhotoUrl: userInfo.profilePhotoUrl || `${process.env.BACKEND_URL}/static/images/avatar.png`,
       },
     };
     return res.status(200).json({

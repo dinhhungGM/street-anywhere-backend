@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsTo(models.user, { as: 'following', foreignKey: 'followerId', sourceKey: 'userId' });
-      this.hasOne(models.user, { as: 'follower', followerId: 'userId' });
+      // this.belongsTo(models.user, { as: 'following', foreignKey: 'followerId', sourceKey: 'userId' });
+      // this.hasOne(models.user, { as: 'follower', followerId: 'userId' });
     }
   }
   follower.init(
@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'follower',
+      timestamps: false,
     },
   );
   return follower;

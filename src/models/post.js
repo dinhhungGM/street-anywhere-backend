@@ -22,8 +22,8 @@ module.exports = (sequelize, DataTypes) => {
       mediaSource: DataTypes.BLOB,
       shortTitle: DataTypes.STRING,
       description: DataTypes.STRING,
-      videoYtbUrl: DataTypes.STRING, 
-      numberOfFollowers: DataTypes.INTEGER
+      videoYtbUrl: DataTypes.STRING,
+      numberOfFollowers: DataTypes.INTEGER,
     },
     {
       sequelize,

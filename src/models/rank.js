@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: 'rank',
+      timestamps: false,
     },
   );
   return rank;

@@ -9,7 +9,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      this.belongsToMany(models.post, { through: models.post, onUpdate: 'CASCADE', onDelete: 'SET NULL' });
+      this.belongsToMany(models.post, { through: models.postReaction, onUpdate: 'CASCADE', onDelete: 'SET NULL' });
     }
   }
   reaction.init(
