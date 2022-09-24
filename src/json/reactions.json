@@ -1,0 +1,19 @@
+{
+  "reactions": [
+    {
+      "reactionType": "Like"
+    },
+    {
+      "reactionType": "Ha Ha"
+    },
+    {
+      "reactionType": "Love"
+    },
+    {
+      "reactionType": "Sad"
+    },
+    {
+      "reactionType": "Angry"
+    }
+  ]
+}

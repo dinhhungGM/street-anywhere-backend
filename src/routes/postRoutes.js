@@ -22,7 +22,7 @@ router
   .post(
     uploadFile.single('media'),
     body('title', 'The title of post does not empty').exists().notEmpty(),
-    body('title', 'The title of post only contains at most 50 characters').isLength({ max: 50 }),
+    body('title', 'The title of post only contains at most 100 characters').isLength({ max: 100 }),
     body('location', 'The location does not empty').exists().notEmpty(),
     body('longitude', 'The longitude does not empty').exists().notEmpty(),
     body('longitude', 'The longitude should be numeric value').isNumeric(),

@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
       shortTitle: DataTypes.STRING,
       description: DataTypes.STRING,
       videoYtbUrl: DataTypes.STRING,
-      numberOfFollowers: DataTypes.INTEGER,
+      views: DataTypes.INTEGER,
     },
     {
       sequelize,
