@@ -43,7 +43,17 @@ module.exports = {
   }),
 
   getAllPosts: catchAsync(async (req, res) => {
-    const { page } = req.query;
+    const { page, category, tag } = req.query;
+    const filterTag = tag && {
+      where: {
+        id: tag,
+      },
+    };
+    const filterCategory = category && {
+      where: {
+        id: category,
+      },
+    };
     const posts = await Post.findAll({
       attributes: {
         exclude: ['mediaSource'],
@@ -54,9 +64,11 @@ module.exports = {
       include: [
         {
           model: Tag,
+          ...filterTag,
         },
         {
           model: Category,
+          ...filterCategory,
         },
         {
           model: User,
