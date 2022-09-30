@@ -3,6 +3,7 @@ const { CategoryRoutes } = require('./../features/category');
 const { TagRoutes } = require('./../features/tag');
 const { PostRoutes } = require('./../features/post');
 const { UserRoutes } = require('./../features/user');
+const { CommentRoutes } = require('./../features/comment');
 const { ErrorController } = require('../features/error');
 
 const createRoutes = (app) => {
@@ -11,6 +12,7 @@ const createRoutes = (app) => {
   app.use('/api/categories', CategoryRoutes);
   app.use('/api/tags', TagRoutes);
   app.use('/api/users', UserRoutes);
+  app.use('/api/comments', CommentRoutes);
   app.use('*', ErrorController.handleNotFound);
   app.use(ErrorController.handleError);
 };

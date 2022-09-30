@@ -1,9 +1,25 @@
+const _ = require('lodash');
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
-const { comment: Comment } = require('./../../models');
+const { comment: Comment, post: Post, user: User } = require('./../../models');
 
 module.exports = {
-  createComment: catchAsync(async (req, res) => {
+  createComment: catchAsync(async (req, res, next) => {
+    const { postId: postIdInParam } = req.params;
+    const { userId, postId: postIdInBody } = req.body;
+    if (postIdInParam !== postIdInBody) {
+      throw helper.createError(400, 'The post id in param and body are not match');
+    }
+    const [checkPost, checkUser] = await Promise.all([Post.findByPk(+postIdInBody), User.findByPk(+userId)]);
+    if (_.isNil(checkPost) || _.isNil(checkUser)) {
+      let errMsg;
+      if (_.isNil(checkPost)) {
+        errMsg = 'The post which you wanna comment is not found';
+      } else {
+        errMsg = 'The user who is commenting is not exist';
+      }
+      throw helper.createError(400, errMsg);
+    }
     await Comment.create(req.body);
     return res.status(201).json({
       status: 'Success',
@@ -11,14 +27,22 @@ module.exports = {
     });
   }),
 
-  getCommentsByPostId: catchAsync(async (req, res) => {
-    const { id } = req.params;
+  getCommentsByPostId: catchAsync(async (req, res, next) => {
+    const { postId } = req.params;
     const comments = await Comment.findAll({
-      raw: true,
       where: {
-        postId: id,
+        postId: +postId,
       },
       order: [['createdAt', 'DESC']],
+      attributes: {
+        exclude: ['updatedAt']
+      },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'profilePhotoUrl', 'fullName', 'rankId']
+        } 
+      ],
     });
     return res.status(200).json({
       status: 'Success',
@@ -27,23 +51,9 @@ module.exports = {
     });
   }),
 
-  updateComment: catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const count = await Comment.update(req.body, {
-      where: { id },
-    });
-    if (!count) {
-      throw helper.createError(404, 'No comments found');
-    }
-    return res.status(200).json({
-      status: 'Success',
-      message: 'Update successfully',
-    });
-  }),
-
-  deleteComment: catchAsync(async (req, res) => {
-    const { id } = req.params;
-    const count = await Comment.delete({ where: { id } });
+  deleteComment: catchAsync(async (req, res, next) => {
+    const { commentId } = req.params;
+    const count = await Comment.destroy({ where: { id: +commentId } });
     if (!count) {
       throw helper.createError(404, 'No comments found');
     }
