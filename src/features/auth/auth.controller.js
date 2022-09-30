@@ -1,6 +1,6 @@
 const _ = require('lodash');
 const catchAsync = require('./../../utils/catchAsync');
-const helper = require('./../../utils/catchAsync');
+const helper = require('./../../utils/helper');
 const { user: User } = require('./../../models');
 
 module.exports = {
