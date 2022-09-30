@@ -9,4 +9,5 @@ router.get(
   ErrorHandler.catchValidationError,
   UserHandler.getAvatar,
 );
+
 module.exports = router;

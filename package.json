@@ -29,6 +29,15 @@
     "sequelize": "^6.21.4"
   },
   "devDependencies": {
+    "eslint": "^8.24.0",
     "nodemon": "^2.0.19"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Linhttn1000/uit-be-thesis.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Linhttn1000/uit-be-thesis/issues"
+  },
+  "homepage": "https://github.com/Linhttn1000/uit-be-thesis#readme"
 }
