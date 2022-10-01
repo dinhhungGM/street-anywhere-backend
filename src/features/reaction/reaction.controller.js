@@ -32,6 +32,7 @@ module.exports = {
       message: 'Add reaction successfully',
     });
   }),
+  
   getAllReactionsByPostId: catchAsync(async (req, res, next) => {
     const { postId } = req.params;
     const allReactions = await PostReaction.findAndCountAll({

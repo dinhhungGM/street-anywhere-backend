@@ -5,6 +5,7 @@ const { PostRoutes } = require('./../features/post');
 const { UserRoutes } = require('./../features/user');
 const { CommentRoutes } = require('./../features/comment');
 const { ReactionRoutes } = require('./../features/reaction');
+const { BookmarkRoutes } = require('./../features/bookmark');
 const { ErrorController } = require('../features/error');
 
 const createRoutes = (app) => {
@@ -15,6 +16,7 @@ const createRoutes = (app) => {
   app.use('/api/users', UserRoutes);
   app.use('/api/comments', CommentRoutes);
   app.use('/api/reactions', ReactionRoutes);
+  app.use('/api/bookmarks', BookmarkRoutes);
   app.use('*', ErrorController.handleNotFound);
   app.use(ErrorController.handleError);
 };

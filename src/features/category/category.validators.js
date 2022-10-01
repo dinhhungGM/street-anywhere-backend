@@ -2,7 +2,7 @@ const { check } = require('express-validator');
 
 module.exports = {
   validateCategoryId: () => [
-    check('id').isInt().withMessage('Please provide a valid category id. It should be a positive integer'),
+    check('id').trim().isInt().withMessage('Please provide a valid category id. It should be a positive integer'),
   ],
   validateCategoryPayload: () => [
     check('categoryName')

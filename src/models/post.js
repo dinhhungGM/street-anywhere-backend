@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsToMany(models.category, { through: models.postCategory });
       this.hasMany(models.comment, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
       this.belongsToMany(models.reaction, { through: models.postReaction });
+      this.hasMany(models.bookmark, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
     }
   }
   post.init(

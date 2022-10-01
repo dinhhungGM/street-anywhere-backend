@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.comment, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
       this.belongsTo(models.rank);
       this.belongsToMany(models.reaction, { through: models.postReaction });
+      this.hasMany(models.bookmark, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
     }
   }
   user.init(
