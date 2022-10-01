@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       this.hasMany(models.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       this.hasMany(models.comment, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
       this.belongsTo(models.rank);
+      this.belongsToMany(models.reaction, { through: models.postReaction });
     }
   }
   user.init(

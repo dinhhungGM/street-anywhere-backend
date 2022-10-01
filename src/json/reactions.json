@@ -1,19 +1,24 @@
 {
   "reactions": [
     {
-      "reactionType": "Like"
+      "reactionType": "Like", 
+      "icon": "ThumbUpAlt"
     },
     {
-      "reactionType": "Ha Ha"
+      "reactionType": "Ha Ha",
+      "icon": "InsertEmoticon"
     },
     {
-      "reactionType": "Love"
+      "reactionType": "Love",
+      "icon": "Favorite "
     },
     {
-      "reactionType": "Sad"
+      "reactionType": "Sad",
+      "icon": "SentimentDissatisfied"
     },
     {
-      "reactionType": "Angry"
+      "reactionType": "Angry",
+      "icon": "SentimentVeryDissatisfied"
     }
   ]
 }
