@@ -1,7 +1,8 @@
 const catchAsync = require('../../utils/catchAsync');
-const { user: User, post: Post, bookmark: Bookmark } = require('./../../models');
+const { user: User, post: Post, bookmark: Bookmark, tag: Tag, category: Category } = require('./../../models');
 const _ = require('lodash');
 const helpers = require('./../../utils/helper');
+const BookmarkUtils = require('./bookmark.utils');
 
 module.exports = {
   addBookmark: catchAsync(async (req, res, next) => {
@@ -25,15 +26,29 @@ module.exports = {
       where: {
         userId: +userId,
       },
+      attributes: {
+        exclude: ['userId', 'postId'],
+      },
       include: [
         {
           model: Post,
+          attributes: {
+            exclude: ['mediaSource', 'userId', 'createdAt', 'updatedAt'],
+          },
+          include: [
+            {
+              model: Tag,
+            },
+            {
+              model: Category,
+            },
+          ],
         },
       ],
     });
     return res.status(200).json({
       status: 'Success',
-      value: allBookmarks,
+      value: BookmarkUtils.constructResponseForGetStoredPost(allBookmarks),
     });
   }),
   deleteBookmark: catchAsync(async (req, res, next) => {
