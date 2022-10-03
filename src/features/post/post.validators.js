@@ -52,4 +52,7 @@ module.exports = {
     body('type').exists().withMessage('Please provide the type of post').notEmpty('Please provide the type of post'),
     body('videoYtbUrl').optional().trim().notEmpty('Please provide the youtube url'),
   ],
+  validateUserId: () => [
+    param('userId').trim().isInt('Please provide a valid user id. It should be a positive integer'),
+  ],
 };

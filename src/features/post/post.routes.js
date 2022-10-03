@@ -4,6 +4,18 @@ const PostController = require('./post.controller');
 const PostValidators = require('./post.validators');
 const uploadFile = require('./../../utils/multer');
 
+router.patch(
+  '/addView/:id',
+  PostValidators.validatePostId(),
+  ErrorController.catchValidationError,
+  PostController.incrementView,
+);
+router.get(
+  '/user/:userId',
+  PostValidators.validateUserId(),
+  ErrorController.catchValidationError,
+  PostController.getPostByUserId,
+);
 router.get(
   '/media/:id',
   PostValidators.validatePostId(),

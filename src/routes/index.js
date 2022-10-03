@@ -6,6 +6,7 @@ const { UserRoutes } = require('./../features/user');
 const { CommentRoutes } = require('./../features/comment');
 const { ReactionRoutes } = require('./../features/reaction');
 const { BookmarkRoutes } = require('./../features/bookmark');
+const { ApiDocsRoutes } = require('./../features/api-docs');
 const { ErrorController } = require('../features/error');
 
 const createRoutes = (app) => {

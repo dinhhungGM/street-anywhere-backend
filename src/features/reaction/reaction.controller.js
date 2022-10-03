@@ -32,7 +32,7 @@ module.exports = {
       message: 'Add reaction successfully',
     });
   }),
-  
+
   getAllReactionsByPostId: catchAsync(async (req, res, next) => {
     const { postId } = req.params;
     const allReactions = await PostReaction.findAndCountAll({
@@ -54,6 +54,14 @@ module.exports = {
     return res.status(200).json({
       status: 'Success',
       value: allReactions,
+    });
+  }),
+
+  getReactions: catchAsync(async (req, res, next) => {
+    const reactions = await Reaction.findAll({ raw: true });
+    return res.status(200).json({
+      status: 'Success',
+      value: reactions,
     });
   }),
 };

@@ -1,7 +1,8 @@
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
-const { post: Post, tag: Tag, category: Category, user: User } = require('./../../models');
+const { post: Post, tag: Tag, category: Category, user: User, reaction: Reaction } = require('./../../models');
 const _ = require('lodash');
+const PostUtils = require('./post.utils');
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
@@ -135,31 +136,53 @@ module.exports = {
         {
           model: User,
         },
+        {
+          model: Reaction,
+        },
       ],
     });
     if (!post) {
       throw helper.createError(404, 'No posts found');
     }
-    const {
-      dataValues: postDataValues,
-      tags,
-      categories,
-      user: { dataValues: userInfo },
-    } = post;
-    const responseValue = {
-      ...postDataValues,
-      imageUrl: `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,
-      tags: _.map(tags, 'tagName'),
-      categories: _.map(categories, 'categoryName'),
-      user: {
-        id: userInfo.id,
-        fullName: `${userInfo.firstName} ${userInfo.lastName}`,
-        profilePhotoUrl: userInfo.profilePhotoUrl || `${process.env.BACKEND_URL}/static/images/avatar.png`,
-      },
-    };
     return res.status(200).json({
       status: 'Success',
-      value: responseValue,
+      value: PostUtils.constructResponseValueForGetPostByPostId(post),
     });
+  }),
+
+  getPostByUserId: catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const posts = await Post.findAndCountAll({
+      where: {
+        userId: +userId,
+      },
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
+      },
+      include: [
+        {
+          model: Category,
+        },
+        {
+          model: Tag,
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: PostUtils.constructResponseValueForGetPostByUserId(posts),
+    });
+  }),
+
+  incrementView: catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const post = await Post.findByPk(+id);
+    if (!post) {
+      throw helper.createError(404, 'Not found post');
+    }
+    await post.increment({
+      views: 1,
+    });
+    return res.status(204).send();
   }),
 };

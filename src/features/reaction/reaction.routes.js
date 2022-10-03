@@ -16,4 +16,5 @@ router.post(
   ErrorController.catchValidationError,
   ReactionController.addReaction,
 );
+router.route('').get(ReactionController.getReactions);
 module.exports = router;
