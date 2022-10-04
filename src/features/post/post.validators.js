@@ -9,14 +9,16 @@ module.exports = {
       .exists()
       .withMessage('A post must have a title')
       .trim()
-      .notEmpty('The post title is not empty')
+      .notEmpty()
+      .withMessage('The post title is not empty')
       .isLength({ max: 100 })
       .withMessage('The post title can not be more than 100 characters'),
     body('shortTitle')
       .exists()
       .withMessage('A post must have a short title')
       .trim()
-      .notEmpty('The short title is not empty')
+      .notEmpty()
+      .withMessage('The short title is not empty')
       .isLength({ max: 50 })
       .withMessage('The short title can not be more than 50 characters'),
     body('location')
@@ -49,8 +51,12 @@ module.exports = {
       .withMessage('A post must have some categories')
       .isJSON()
       .withMessage('Please provide a stringify of categories arrays'),
-    body('type').exists().withMessage('Please provide the type of post').notEmpty('Please provide the type of post'),
-    body('videoYtbUrl').optional().trim().notEmpty('Please provide the youtube url'),
+    body('type')
+      .exists()
+      .withMessage('Please provide the type of post')
+      .notEmpty()
+      .withMessage('Please provide the type of post'),
+    body('videoYtbUrl').optional().trim().notEmpty().withMessage('Please provide the youtube url'),
   ],
   validateUserId: () => [
     param('userId').trim().isInt('Please provide a valid user id. It should be a positive integer'),
