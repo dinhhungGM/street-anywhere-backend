@@ -9,6 +9,12 @@ module.exports = (sequelize, DataTypes) => {
   }
   postReaction.init(
     {
+      id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        autoIncrement: true,
+        primaryKey: true,
+      },
       postId: DataTypes.INTEGER,
       reactionId: DataTypes.INTEGER,
       userId: DataTypes.INTEGER,

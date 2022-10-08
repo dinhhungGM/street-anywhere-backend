@@ -2,6 +2,7 @@ const catchAsync = require('../../utils/catchAsync');
 const { post: Post, user: User, reaction: Reaction, postReaction: PostReaction } = require('./../../models');
 const _ = require('lodash');
 const helper = require('../../utils/helper');
+const ReactionsUtils = require('./reaction.utils');
 
 module.exports = {
   addReaction: catchAsync(async (req, res, next) => {
@@ -35,11 +36,11 @@ module.exports = {
 
   getAllReactionsByPostId: catchAsync(async (req, res, next) => {
     const { postId } = req.params;
-    const allReactions = await PostReaction.findAndCountAll({
+    const allReactions = await PostReaction.findAll({
       where: {
         postId: +postId,
       },
-      attributes: ['postId'],
+      attributes: ['id', 'postId'],
       include: [
         {
           model: Reaction,
@@ -47,13 +48,13 @@ module.exports = {
         },
         {
           model: User,
-          attributes: ['id', 'fullName'],
+          attributes: ['id', 'fullName', 'firstName', 'lastName'],
         },
       ],
     });
     return res.status(200).json({
       status: 'Success',
-      value: allReactions,
+      value: ReactionsUtils.constructResponseForGetReactionsByPostId(allReactions),
     });
   }),
 
@@ -63,5 +64,39 @@ module.exports = {
       status: 'Success',
       value: reactions,
     });
+  }),
+
+  updateReaction: catchAsync(async (req, res, next) => {
+    const { postReactionId } = req.params;
+    const { reactionId } = req.body;
+    const [reactionInstance, postReactionInstance] = await Promise.all([
+      Reaction.findByPk(+reactionId),
+      PostReaction.findByPk(+postReactionId),
+    ]);
+    if (_.isNil(reactionInstance)) {
+      throw helper.createError(404, 'Not found reaction type');
+    }
+    if (_.isNil(postReactionInstance)) {
+      throw helper.createError(404, 'Not found your reaction of post');
+    }
+    postReactionInstance.set({ reactionId });
+    await postReactionInstance.save();
+    return res.status(200).json({
+      status: 'Success',
+      message: 'Update successfully',
+    });
+  }),
+
+  deletePostReaction: catchAsync(async (req, res, next) => {
+    const { postReactionId } = req.params;
+    const deletedCount = await PostReaction.destroy({
+      where: {
+        id: +postReactionId,
+      },
+    });
+    if (!deletedCount) {
+      throw helper.createError(404, 'Not found your reaction of post');
+    }
+    return res.status(204).send();
   }),
 };

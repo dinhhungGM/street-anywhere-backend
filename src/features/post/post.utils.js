@@ -20,16 +20,19 @@ module.exports = {
       categories,
       user: { dataValues: userInfo },
     } = rawValue;
+    // Construct reaction detail
     let reactionDetails = {};
-    const reactionsGroupObj = _.groupBy(postDataValues.reactions, 'reactionType'); // object
+    const reactionsGroupObj = _.groupBy(postDataValues.reactions, 'reactionType'); // object, to group reaction
     for (const reactionType in reactionsGroupObj) {
-      const details = reactionsGroupObj[reactionType]; // array
+      const details = reactionsGroupObj[reactionType]; // array, get a item of reaction
+      const firstItem = details[0].toJSON(); // To get reaction id
       reactionDetails[reactionType] = {
+        reactionId: firstItem.id,
         count: details.length,
         users: _.map(details, (item) => item.postReaction.userId),
       };
     }
-
+    // Construct response payload
     const responseValue = {
       ...postDataValues,
       imageUrl: `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,

@@ -35,13 +35,13 @@ module.exports = {
       },
       order: [['createdAt', 'DESC']],
       attributes: {
-        exclude: ['updatedAt']
+        exclude: ['updatedAt'],
       },
       include: [
         {
           model: User,
-          attributes: ['id', 'profilePhotoUrl', 'fullName', 'rankId']
-        } 
+          attributes: ['id', 'profilePhotoUrl', 'fullName', 'rankId'],
+        },
       ],
     });
     return res.status(200).json({

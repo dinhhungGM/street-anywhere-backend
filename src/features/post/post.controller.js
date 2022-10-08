@@ -184,5 +184,5 @@ module.exports = {
       views: 1,
     });
     return res.status(204).send();
-  })
+  }),
 };
