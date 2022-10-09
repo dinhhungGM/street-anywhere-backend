@@ -47,4 +47,30 @@ module.exports = {
     };
     return responseValue;
   },
+  constructResponseValueForGettingAllPosts: (rawValue) => {
+    return _.map(rawValue, (post) => {
+      const {
+        dataValues: postDataValues,
+        tags,
+        categories,
+        user: { dataValues: userInfo },
+      } = post;
+      const { reactions, bookmarks, comments, ...restInfo } = postDataValues;
+      return {
+        ...restInfo,
+        imageUrl:
+          postDataValues.type === 'video' ? null : `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,
+        tags: _.map(tags, 'tagName'),
+        categories: _.map(categories, 'categoryName'),
+        user: {
+          userId: userInfo.id,
+          fullName: `${userInfo.firstName || ''} ${userInfo.lastName || ''}`,
+          profilePhotoUrl: userInfo.profilePhotoUrl || `${process.env.BACKEND_URL}/static/images/avatar.png`,
+        },
+        reactionCount: reactions.length,
+        bookmarkCount: bookmarks.length,
+        commentCount: comments.length,
+      };
+    });
+  },
 };

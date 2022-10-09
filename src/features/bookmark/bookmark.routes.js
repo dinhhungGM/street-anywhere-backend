@@ -9,6 +9,12 @@ router.get(
   ErrorController.catchValidationError,
   BookmarkController.getBookmarkByUserId,
 );
+router.get(
+  '/post/:postId',
+  BookmarkValidators.validatePostId(),
+  ErrorController.catchValidationError,
+  BookmarkController.getBookmarkDetailsByPostId,
+);
 router.delete(
   '/:bookmarkId',
   BookmarkValidators.validateBookmarkId(),

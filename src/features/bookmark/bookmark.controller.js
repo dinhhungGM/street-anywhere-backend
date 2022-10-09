@@ -63,4 +63,16 @@ module.exports = {
     }
     return res.status(204).send();
   }),
+  getBookmarkDetailsByPostId: catchAsync(async (req, res, next) => {
+    const { postId } = req.params;
+    const bookmarkDetails = await Bookmark.findAll({
+      where: {
+        postId,
+      },
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: BookmarkUtils.constructResponseForGettingBookmarkDetails(bookmarkDetails),
+    });
+  }),
 };

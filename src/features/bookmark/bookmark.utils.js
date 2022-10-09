@@ -15,4 +15,18 @@ module.exports = {
       posts,
     };
   },
+  constructResponseForGettingBookmarkDetails: (rawValues) => {
+    const bookmarkCount = rawValues.length;
+    const details = _.map(rawValues, (rawBookmarkData) => {
+      const bookmark = rawBookmarkData.toJSON();
+      return {
+        bookmarkId: bookmark.id,
+        userId: bookmark.userId,
+      };
+    });
+    return {
+      bookmarkCount,
+      bookmarkDetails: details,
+    };
+  },
 };

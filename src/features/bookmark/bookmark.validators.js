@@ -16,9 +16,16 @@ module.exports = {
       .withMessage('The postID is invalid. It should be a positive integer'),
   ],
   validateBookmarkId: () => [
-    param('bookmarkId').trim().isInt().withMessage('The bookmarkId is invalid. It should be a positive integer'),
+    param('bookmarkId')
+      .trim()
+      .isInt()
+      .withMessage('The bookmarkId is invalid. It should be a positive integer')
+      .toInt(),
   ],
   validateUserId: () => [
-    param('userId').trim().isInt().withMessage('The userId is invalid. It should be a positive integer'),
+    param('userId').trim().isInt().withMessage('The userId is invalid. It should be a positive integer').toInt(),
+  ],
+  validatePostId: () => [
+    param('postId').trim().isInt().withMessage('The userId is invalid. It should be a positive integer').toInt(),
   ],
 };

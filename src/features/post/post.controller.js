@@ -1,7 +1,14 @@
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
-const { post: Post, tag: Tag, category: Category, user: User, reaction: Reaction } = require('./../../models');
-const _ = require('lodash');
+const {
+  post: Post,
+  tag: Tag,
+  category: Category,
+  user: User,
+  reaction: Reaction,
+  bookmark: Bookmark,
+  comment: Comment,
+} = require('./../../models');
 const PostUtils = require('./post.utils');
 
 module.exports = {
@@ -61,7 +68,7 @@ module.exports = {
     };
     const posts = await Post.findAll({
       attributes: {
-        exclude: ['mediaSource'],
+        exclude: ['mediaSource', 'updatedAt'],
       },
       order: [['createdAt', 'DESC']],
       limit: 30,
@@ -78,31 +85,20 @@ module.exports = {
         {
           model: User,
         },
-      ],
-    });
-    const responseValues = _.map(posts, (post) => {
-      const {
-        dataValues: postDataValues,
-        tags,
-        categories,
-        user: { dataValues: userInfo },
-      } = post;
-      return {
-        ...postDataValues,
-        imageUrl:
-          postDataValues.type === 'video' ? null : `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,
-        tags: _.map(tags, 'tagName'),
-        categories: _.map(categories, 'categoryName'),
-        user: {
-          userId: userInfo.id,
-          fullName: `${userInfo.firstName || ''} ${userInfo.lastName || ''}`,
-          profilePhotoUrl: userInfo.profilePhotoUrl || `${process.env.BACKEND_URL}/static/images/avatar.png`,
+        {
+          model: Reaction,
         },
-      };
+        {
+          model: Bookmark,
+        },
+        {
+          model: Comment,
+        },
+      ],
     });
     return res.status(200).json({
       status: 'Success',
-      value: responseValues,
+      value: PostUtils.constructResponseValueForGettingAllPosts(posts),
     });
   }),
 
