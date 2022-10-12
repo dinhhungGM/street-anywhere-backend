@@ -2,6 +2,7 @@ const _ = require('lodash');
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
 const { comment: Comment, post: Post, user: User } = require('./../../models');
+const CommentUtils = require('./comment.utils');
 
 module.exports = {
   createComment: catchAsync(async (req, res, next) => {
@@ -40,14 +41,14 @@ module.exports = {
       include: [
         {
           model: User,
-          attributes: ['id', 'profilePhotoUrl', 'fullName', 'rankId'],
+          attributes: ['profilePhotoUrl', 'fullName', 'rankId', 'firstName', 'lastName'],
         },
       ],
     });
     return res.status(200).json({
       status: 'Success',
       message: 'Get data successfully',
-      value: comments,
+      value: CommentUtils.buildResForGettingCommentByPostId(comments),
     });
   }),
 
@@ -56,6 +57,26 @@ module.exports = {
     const count = await Comment.destroy({ where: { id: +commentId } });
     if (!count) {
       throw helper.createError(404, 'No comments found');
+    }
+    return res.status(204).end();
+  }),
+
+  updateCommentByCommentId: catchAsync(async (req, res, next) => {
+    const { commentId } = req.params;
+    const { content } = req.body;
+    const count = await Comment.update(
+      {
+        content,
+        createdAt: new Date(),
+      },
+      {
+        where: {
+          id: +commentId,
+        },
+      },
+    );
+    if (!count) {
+      throw helper.createError(404, 'Not found your comment to update');
     }
     return res.status(204).end();
   }),

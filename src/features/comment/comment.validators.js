@@ -31,4 +31,14 @@ module.exports = {
   validateCommentId: () => [
     param('commentId').isInt().withMessage('Please provide a valid comment id. It should be a integer'),
   ],
+  validateContent: () => [
+    body('content')
+      .exists()
+      .withMessage('Please provide your content of comment to continue')
+      .trim()
+      .notEmpty()
+      .withMessage('The comment does not empty')
+      .isLength({ max: 300 })
+      .withMessage('The comment can not be more than 300 characters'),
+  ],
 };

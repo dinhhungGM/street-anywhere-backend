@@ -11,11 +11,13 @@ router
     ErrorController.catchValidationError,
     CommentController.createComment,
   );
-
-router.delete(
-  '/:commentId',
-  CommentValidators.validateCommentId(),
-  ErrorController.catchValidationError,
-  CommentController.deleteComment,
-);
+router
+  .route('/:commentId')
+  .patch(
+    CommentValidators.validateCommentId(),
+    CommentValidators.validateContent(),
+    ErrorController.catchValidationError,
+    CommentController.updateCommentByCommentId,
+  )
+  .delete(CommentValidators.validateCommentId(), ErrorController.catchValidationError, CommentController.deleteComment);
 module.exports = router;
