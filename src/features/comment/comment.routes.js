@@ -5,7 +5,12 @@ const CommentValidators = require('./comment.validators');
 
 router
   .route('/post/:postId')
-  .get(CommentValidators.validatePostId(), ErrorController.catchValidationError, CommentController.getCommentsByPostId)
+  .get(
+    CommentValidators.validatePostId(),
+    CommentValidators.validatePageNumber(),
+    ErrorController.catchValidationError,
+    CommentController.getCommentsByPostId,
+  )
   .post(
     CommentValidators.validateNewCommentPayload(),
     ErrorController.catchValidationError,

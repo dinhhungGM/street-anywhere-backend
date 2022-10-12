@@ -1,4 +1,4 @@
-const { body, param } = require('express-validator');
+const { body, param, query } = require('express-validator');
 
 module.exports = {
   validateNewCommentPayload: () => [
@@ -40,5 +40,13 @@ module.exports = {
       .withMessage('The comment does not empty')
       .isLength({ max: 300 })
       .withMessage('The comment can not be more than 300 characters'),
+  ],
+  validatePageNumber: () => [
+    query('page')
+      .optional()
+      .isInt()
+      .withMessage('The page is invalid')
+      .isLength({ min: 1 })
+      .withMessage('The page should be greater than or equal 1'),
   ],
 };

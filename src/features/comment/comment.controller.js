@@ -29,15 +29,16 @@ module.exports = {
   }),
 
   getCommentsByPostId: catchAsync(async (req, res, next) => {
+    const PAGE_SIZE = 6;
     const { postId } = req.params;
-    const comments = await Comment.findAll({
+    const { page } = req.query;
+    const comments = await Comment.findAndCountAll({
       where: {
         postId: +postId,
       },
       order: [['createdAt', 'DESC']],
-      attributes: {
-        exclude: ['updatedAt'],
-      },
+      limit: PAGE_SIZE,
+      offset: parseInt(page) ? (page - 1) * PAGE_SIZE : 0,
       include: [
         {
           model: User,
@@ -48,7 +49,10 @@ module.exports = {
     return res.status(200).json({
       status: 'Success',
       message: 'Get data successfully',
-      value: CommentUtils.buildResForGettingCommentByPostId(comments),
+      value: {
+        commentCount: comments.count,
+        commentList: CommentUtils.buildResForGettingCommentByPostId(comments.rows),
+      },
     });
   }),
 
@@ -67,7 +71,7 @@ module.exports = {
     const count = await Comment.update(
       {
         content,
-        createdAt: new Date(),
+        updatedAt: new Date(),
       },
       {
         where: {
