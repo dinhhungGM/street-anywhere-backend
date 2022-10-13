@@ -162,6 +162,15 @@ module.exports = {
         {
           model: Tag,
         },
+        {
+          model: Reaction,
+        },
+        {
+          model: Bookmark,
+        },
+        {
+          model: Comment,
+        },
       ],
     });
     return res.status(200).json({

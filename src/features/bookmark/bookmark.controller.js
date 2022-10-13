@@ -1,5 +1,13 @@
 const catchAsync = require('../../utils/catchAsync');
-const { user: User, post: Post, bookmark: Bookmark, tag: Tag, category: Category } = require('./../../models');
+const {
+  user: User,
+  post: Post,
+  bookmark: Bookmark,
+  tag: Tag,
+  category: Category,
+  comment: Comment,
+  reaction: Reaction,
+} = require('./../../models');
 const _ = require('lodash');
 const helpers = require('./../../utils/helper');
 const BookmarkUtils = require('./bookmark.utils');
@@ -41,6 +49,15 @@ module.exports = {
             },
             {
               model: Category,
+            },
+            {
+              model: Reaction,
+            },
+            {
+              model: Bookmark,
+            },
+            {
+              model: Comment,
             },
           ],
         },

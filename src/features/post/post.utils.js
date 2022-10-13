@@ -4,11 +4,15 @@ module.exports = {
     const { count, rows } = rawValue;
     const responsePosts = rows.map((rawPost) => {
       const post = rawPost.toJSON();
+      const { reactions, bookmarks, comments, ...rest } = post;
       return {
-        ...post,
+        ...rest,
         imageUrl: post.type === 'video' ? null : `${process.env.BACKEND_URL}/posts/media/${post.id}`,
         tags: _.map(post.tags, 'tagName'),
         categories: _.map(post.categories, 'categoryName'),
+        reactionCount: reactions.length,
+        bookmarkCount: bookmarks.length,
+        commentCount: comments.length,
       };
     });
     return responsePosts;
