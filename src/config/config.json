@@ -9,9 +9,9 @@
   },
   "production": {
     "username": "postgres",
-    "password": "jpyelecpibzarm",
-    "database": "dbutg6tp9in17b",
-    "host": "dadc74240c02bff7dcbcf469ab7182e90ad826fcac8e4d8a133347a8e42e95ee@ec2-44-206-137-96.compute-1.amazonaws.com",
+    "password": "bqkfjvllbhzwdb",
+    "database": "d6n7o58tsrpf4t",
+    "host": "981d4de58d49bb4f136c52920e9ba690d313dcb72897e6200f4dfd630354a41d@ec2-3-219-19-205.compute-1.amazonaws.com",
     "dialect": "postgres",
     "port": "5432"
   }
