@@ -19,6 +19,21 @@ router
     ErrorController.catchValidationError,
     AdminController.checkIsAdmin,
     AdminController.getAllUsers,
+  )
+  .post(
+    AdminValidators.validateAdminUserId(),
+    AdminValidators.validateNewUserPayload(),
+    ErrorController.catchValidationError,
+    AdminController.checkIsAdmin,
+    AdminController.createNewUser,
+  );
+router
+  .route('/roles')
+  .get(
+    AdminValidators.validateAdminUserId(),
+    ErrorController.catchValidationError,
+    AdminController.checkIsAdmin,
+    AdminController.getAllRoles,
   );
 
 module.exports = router;

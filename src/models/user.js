@@ -61,7 +61,7 @@ module.exports = (sequelize, DataTypes) => {
         beforeCreate: async (instance) => {
           const endRole = await sequelize.model('role').findOne({ where: { roleName: 'End user' }, raw: true });
           instance.password = await helper.hashPassword(instance.password);
-          instance.roleId = endRole.id;
+          instance.roleId = instance.roleId || endRole.id;
           return instance;
         },
       },

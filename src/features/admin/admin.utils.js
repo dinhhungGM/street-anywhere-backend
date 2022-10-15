@@ -6,10 +6,15 @@ module.exports = {
       const { posts, role, ...restInfo } = instance;
       return {
         ...restInfo,
-        role: role.roleName, 
+        role: role.roleName,
         isAdmin: role.roleName === 'Administrator',
         postCount: posts.length,
       };
+    });
+  },
+  buildAllRolesResponse: (rawValues) => {
+    return _.map(rawValues, (rawValue) => {
+      const roleInstance = rawValue.toJSON();
     });
   },
 };

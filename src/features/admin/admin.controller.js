@@ -32,7 +32,7 @@ module.exports = {
         },
       },
       attributes: {
-        exclude: ['password', 'photoSource', 'imgType', 'roleId'],
+        exclude: ['password', 'photoSource', 'imgType'],
       },
       order: [['id', 'DESC']],
       include: [
@@ -60,5 +60,49 @@ module.exports = {
       throw helper.createError(404, 'Not found user to continue');
     }
     return res.status(204).send();
+  }),
+  getAllRoles: catchAsync(async (req, res, next) => {
+    const allRoles = await models.role.findAll({
+      include: [
+        {
+          model: models.user,
+          attributes: ['id', 'firstName', 'lastName', 'fullName', 'profilePhotoUrl', 'rankId'],
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: allRoles,
+    });
+  }),
+  createNewUser: catchAsync(async (req, res, next) => {
+    const { username, password, firstName, lastName, roleId } = req.body;
+    const [checkExist, checkRole] = await Promise.all([
+      models.user.findAll({
+        where: {
+          username: {
+            [Op.iLike]: username,
+          },
+        },
+      }),
+      models.role.findByPk(+roleId),
+    ]);
+    if (checkExist && checkExist.length) {
+      throw helper.createError(400, 'The username was existed. Please choose another username');
+    }
+    if (!checkRole) {
+      throw helper.createError(404, 'Not found your role. Please check the role again');
+    }
+    await models.user.create({
+      username,
+      password,
+      firstName,
+      lastName,
+      roleId,
+    });
+    return res.status(201).json({
+      status: 'Success',
+      message: 'Create user successfully',
+    });
   }),
 };
