@@ -17,17 +17,17 @@ module.exports = (sequelize, DataTypes) => {
       username: DataTypes.STRING,
       password: {
         type: DataTypes.STRING,
-        set(value) {
-          helper
-            .hashPassword(value)
-            .then((hash) => {
-              this.setDataValue('password', hash);
-            })
-            .catch((err) => {
-              console.error(err);
-              throw err;
-            });
-        },
+        // set(value) {
+        //   helper
+        //     .hashPassword(value)
+        //     .then((hash) => {
+        //       this.setDataValue('password', hash);
+        //     })
+        //     .catch((err) => {
+        //       console.error(err);
+        //       throw err;
+        //     });
+        // },
       },
       firstName: DataTypes.STRING,
       lastName: DataTypes.STRING,
