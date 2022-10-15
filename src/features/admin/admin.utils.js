@@ -12,9 +12,14 @@ module.exports = {
       };
     });
   },
-  buildAllRolesResponse: (rawValues) => {
+  buildAllReactionResponse: (rawValues) => {
     return _.map(rawValues, (rawValue) => {
-      const roleInstance = rawValue.toJSON();
+      const reactionInstance = rawValue.toJSON();
+      const { postReactions, ...restInfo } = reactionInstance;
+      return {
+        ...restInfo,
+        numberOfUses: postReactions.length,
+      };
     });
   },
 };

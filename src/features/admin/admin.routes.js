@@ -35,5 +35,13 @@ router
     AdminController.checkIsAdmin,
     AdminController.getAllRoles,
   );
+router
+  .route('/reactions')
+  .get(
+    AdminValidators.validateAdminUserId(),
+    ErrorController.catchValidationError,
+    AdminController.checkIsAdmin,
+    AdminController.getAllReactions,
+  );
 
 module.exports = router;

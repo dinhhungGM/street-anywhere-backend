@@ -105,4 +105,17 @@ module.exports = {
       message: 'Create user successfully',
     });
   }),
+  getAllReactions: catchAsync(async (req, res, next) => {
+    const reactions = await models.reaction.findAll({
+      include: [
+        {
+          model: models.postReaction,
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: adminUtils.buildAllReactionResponse(reactions),
+    });
+  }),
 };
