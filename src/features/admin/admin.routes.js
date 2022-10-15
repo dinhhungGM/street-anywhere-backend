@@ -43,5 +43,29 @@ router
     AdminController.checkIsAdmin,
     AdminController.getAllReactions,
   );
+router
+  .route('/categories')
+  .get(
+    AdminValidators.validateAdminUserId(),
+    ErrorController.catchValidationError,
+    AdminController.checkIsAdmin,
+    AdminController.getAllCategories,
+  );
+router
+  .route('/tags')
+  .get(
+    AdminValidators.validateAdminUserId(),
+    ErrorController.catchValidationError,
+    AdminController.checkIsAdmin,
+    AdminController.getAllHashTags,
+  );
+// router
+//   .route('/roles')
+//   .get(
+//     AdminValidators.validateAdminUserId(),
+//     ErrorController.catchValidationError,
+//     AdminController.checkIsAdmin,
+//     AdminController.getAllRoles,
+//   );
 
 module.exports = router;

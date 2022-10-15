@@ -22,4 +22,35 @@ module.exports = {
       };
     });
   },
+  buildAllCategoriesResponse: (rawValues) => {
+    return _.map(rawValues, (rawValue) => {
+      const categoryInstance = rawValue.toJSON();
+      const { postCategories, ...restInfo } = categoryInstance;
+      return {
+        ...restInfo,
+        numberOfUses: postCategories.length,
+      };
+    });
+  },
+  buildAllHashTagsResponse: (rawValues) => {
+    return _.map(rawValues, (rawValue) => {
+      const tagsInstance = rawValue.toJSON();
+      const { postTags, ...restInfo } = tagsInstance;
+      return {
+        ...restInfo,
+        numberOfUses: postTags.length,
+      };
+    });
+  },
+  buildAllRolesResponse: (rawValues) => {
+    return _.map(rawValues, (rawValue) => {
+      const roleInstance = rawValue.toJSON();
+      const { users, ...restInfo } = roleInstance;
+      return {
+        ...restInfo,
+        users,
+        numberOfUsers: users.length,
+      };
+    });
+  },
 };

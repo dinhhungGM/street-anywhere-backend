@@ -72,7 +72,7 @@ module.exports = {
     });
     return res.status(200).json({
       status: 'Success',
-      value: allRoles,
+      value: adminUtils.buildAllRolesResponse(allRoles),
     });
   }),
   createNewUser: catchAsync(async (req, res, next) => {
@@ -107,6 +107,7 @@ module.exports = {
   }),
   getAllReactions: catchAsync(async (req, res, next) => {
     const reactions = await models.reaction.findAll({
+      order: [['id', 'ASC']],
       include: [
         {
           model: models.postReaction,
@@ -116,6 +117,48 @@ module.exports = {
     return res.status(200).json({
       status: 'Success',
       value: adminUtils.buildAllReactionResponse(reactions),
+    });
+  }),
+  getAllCategories: catchAsync(async (req, res, next) => {
+    const categories = await models.category.findAll({
+      order: [['id', 'ASC']],
+      include: [
+        {
+          model: models.postCategory,
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: adminUtils.buildAllCategoriesResponse(categories),
+    });
+  }),
+  getAllHashTags: catchAsync(async (req, res, next) => {
+    const hashtags = await models.tag.findAll({
+      order: [['id', 'ASC']],
+      include: [
+        {
+          model: models.postTag,
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: adminUtils.buildAllHashTagsResponse(hashtags),
+    });
+  }),
+  getAllRolesForManagement: catchAsync(async (req, res, next) => {
+    const roles = await models.role.findAll({
+      order: [['id', 'ASC']],
+      include: [
+        {
+          model: models.user,
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: adminUtils.buildAllRolesResponse(roles),
     });
   }),
 };
