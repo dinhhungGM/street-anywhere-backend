@@ -10,7 +10,11 @@
     "migrate": "sequelize-cli db:migrate",
     "undo-migrate": "sequelize-cli db:migrate:undo:all",
     "seeds": "sequelize-cli db:seed:all",
-    "undo-seeds": "sequelize-cli db:seed:undo:all"
+    "undo-seeds": "sequelize-cli db:seed:undo:all",
+    "migrate-prod": "sequelize-cli --env production db:migrate",
+    "undo-migrate-prod": "sequelize-cli --env production db:migrate:undo:all",
+    "seeds-prod": "sequelize-cli --env production db:seed:all",
+    "undo-seeds-prod": "sequelize-cli --env production db:seed:undo:all"
   },
   "keywords": [],
   "author": "",
