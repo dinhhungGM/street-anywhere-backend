@@ -91,7 +91,7 @@ module.exports = {
       throw helper.createError(400, 'The username was existed. Please choose another username');
     }
     if (!checkRole) {
-      throw helper.createError(404, 'Not found your role. Please check the role again');
+      throw helper.createError(403, 'Not found your role. Please check the role again');
     }
     await models.user.create({
       username,

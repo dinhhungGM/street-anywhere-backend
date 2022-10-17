@@ -59,13 +59,5 @@ router
     AdminController.checkIsAdmin,
     AdminController.getAllHashTags,
   );
-// router
-//   .route('/roles')
-//   .get(
-//     AdminValidators.validateAdminUserId(),
-//     ErrorController.catchValidationError,
-//     AdminController.checkIsAdmin,
-//     AdminController.getAllRoles,
-//   );
 
 module.exports = router;
