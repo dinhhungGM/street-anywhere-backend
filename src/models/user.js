@@ -6,10 +6,10 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.role);
       this.hasMany(models.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
-      this.hasMany(models.comment, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
+      this.hasMany(models.comment, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       this.belongsTo(models.rank);
-      this.belongsToMany(models.reaction, { through: models.postReaction });
-      this.hasMany(models.bookmark, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
+      this.belongsToMany(models.reaction, { through: models.postReaction, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      this.hasMany(models.bookmark, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
     }
   }
   user.init(

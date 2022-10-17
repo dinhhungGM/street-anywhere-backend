@@ -4,11 +4,11 @@ module.exports = (sequelize, DataTypes) => {
   class post extends Model {
     static associate(models) {
       this.belongsTo(models.user);
-      this.belongsToMany(models.tag, { through: models.postTag });
+      this.belongsToMany(models.tag, { through: models.postTag, onUpdate: 'CASCADE', onDelete: 'CASCADE' });
       this.belongsToMany(models.category, { through: models.postCategory });
       this.hasMany(models.comment, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
       this.belongsToMany(models.reaction, { through: models.postReaction });
-      this.hasMany(models.bookmark, { onDelete: 'SET NULL', onUpdate: 'CASCADE' });
+      this.hasMany(models.bookmark, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
     }
   }
   post.init(
