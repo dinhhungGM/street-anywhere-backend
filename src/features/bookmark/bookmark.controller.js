@@ -82,6 +82,10 @@ module.exports = {
   }),
   getBookmarkDetailsByPostId: catchAsync(async (req, res, next) => {
     const { postId } = req.params;
+    const checkExist = await Post.findByPk(+postId);
+    if (!checkExist) {
+      throw helpers.createError(404, 'Not found post');
+    }
     const bookmarkDetails = await Bookmark.findAll({
       where: {
         postId,

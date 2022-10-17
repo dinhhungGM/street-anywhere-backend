@@ -1,4 +1,5 @@
 const { AdminDocs } = require('../admin');
+const { BookmarkDocs } = require('../bookmark');
 const { AuthDocs } = require('./../auth');
 
 const env = process.env.NODE_ENV || 'development';
@@ -17,12 +18,13 @@ module.exports = {
   },
   host: process.env.HOST,
   basePath: process.env.BASE_PATH,
-  tags: [AuthDocs.tag, AdminDocs.tag],
+  tags: [AuthDocs.tag, AdminDocs.tag, BookmarkDocs.tag],
   schemes: [protocol],
   consumes: ['application/json'],
   produces: ['application/json'],
   paths: {
     ...AuthDocs.paths,
     ...AdminDocs.paths,
+    ...BookmarkDocs.paths,
   },
 };

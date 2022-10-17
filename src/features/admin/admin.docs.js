@@ -34,6 +34,7 @@ module.exports = {
             in: 'path',
             description: 'The user id you wanna delete',
             required: true,
+            type: 'number',
           },
         ],
         responses: {
