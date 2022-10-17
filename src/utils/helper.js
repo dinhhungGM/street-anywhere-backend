@@ -9,7 +9,7 @@ module.exports = {
   },
   hashPassword: async (password) => {
     try {
-      const hash = await bcryptjs.hash(password, 10);
+      const hash = await bcryptjs.hash(password + '', 10);
       return hash;
     } catch (error) {
       console.log('Error: Hash password');
