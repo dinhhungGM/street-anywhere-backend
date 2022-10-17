@@ -20,6 +20,7 @@ const createRoutes = (app) => {
   app.use('/api/reactions', ReactionRoutes);
   app.use('/api/bookmarks', BookmarkRoutes);
   app.use('/api/admin', AdminRoutes);
+  app.use('/', ApiDocsRoutes);
   app.use('*', ErrorController.handleNotFound);
   app.use(ErrorController.handleError);
 };

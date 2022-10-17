@@ -15,7 +15,7 @@ module.exports = {
       include: [{ model: models.role }, { model: models.rank }],
     });
     if (_.isNil(findingUser)) {
-      throw helper.createError(404, 'Username or password is incorrect');
+      throw helper.createError(404, 'Not found user');
     }
     const isPasswordMatch = await helper.isPasswordMatch(requestPayload.password, findingUser.password);
     if (!isPasswordMatch) {
@@ -28,12 +28,12 @@ module.exports = {
   }),
 
   handleSignUp: catchAsync(async (req, res, next) => {
-    const reqPayload = req.body;
-    const existedUser = await models.user.findOne({ raw: true, where: { username: reqPayload.username } });
+    const { username, password, firstName, lastName } = req.body;
+    const existedUser = await models.user.findOne({ raw: true, where: { username } });
     if (!_.isNil(existedUser)) {
       throw helper.createError(400, 'Username was existed. Please select another username');
     }
-    const newUser = await models.user.create(reqPayload);
+    const newUser = await models.user.create({ username, password, firstName, lastName });
     const role = await newUser.getRole();
     return res.status(201).json({
       status: 'Success',
