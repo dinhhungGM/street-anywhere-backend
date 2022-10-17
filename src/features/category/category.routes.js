@@ -12,7 +12,7 @@ router
   )
   .patch(
     CategoryValidators.validateCategoryId(),
-    CategoryValidators.validateCategoryPayload,
+    CategoryValidators.validateCategoryPayload(),
     ErrorController.catchValidationError,
     CategoryController.updateCategory,
   )
@@ -25,7 +25,7 @@ router
 router
   .route('')
   .post(
-    CategoryValidators.validateCategoryPayload,
+    CategoryValidators.validateCategoryPayload(),
     ErrorController.catchValidationError,
     CategoryController.createNewCategory,
   )
