@@ -15,14 +15,14 @@ module.exports = {
     description: 'API for comments in the system',
   },
   paths: {
-    '/comments/{id}': {
+    '/comments/post/{postId}': {
       get: {
         tags: ['Comment'],
-        summary: 'Get comments by id',
+        summary: 'Get comments by postId',
         parameters: [
           {
-            name: 'id',
-            description: 'The comments id',
+            name: 'postId',
+            description: 'The post id',
             in: 'path',
             required: true,
             type: 'number',
@@ -40,11 +40,65 @@ module.exports = {
                 value: {
                   type: 'object',
                   properties: {
-                    id: {
-                      type: 'number',
-                    },
-                    categoryName: {
+                    status: {
                       type: 'string',
+                    },
+                    message: {
+                      type: 'string',
+                    },
+                    value: {
+                      type: 'object',
+                      properties: {
+                        commentCount: {
+                          type: 'number',
+                        },
+                        commentList: {
+                          type: 'array',
+                          items: {
+                            type: 'object',
+                            properties: {
+                              id: {
+                                type: 'number',
+                              },
+                              content: {
+                                type: 'string',
+                              },
+                              postId: {
+                                type: 'number',
+                              },
+                              userId: {
+                                type: 'number',
+                              },
+                              createdAt: {
+                                type: 'string',
+                              },
+                              updatedAt: {
+                                type: 'string',
+                              },
+                              user: {
+                                type: 'object',
+                                properties: {
+                                  fullName: {
+                                    type: 'string',
+                                  },
+                                  profilePhotoUrl: {
+                                    type: 'string',
+                                  },
+                                  rankId: {
+                                    type: 'number',
+                                  },
+                                  firstName: {
+                                    type: 'string',
+                                  },
+                                  lastName: {
+                                    type: 'string',
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -52,11 +106,11 @@ module.exports = {
             },
           },
           400: {
-            description: 'Bad request. Maybe the id is invalid',
+            description: 'Bad request. Maybe the postId is invalid',
             schema: errorResponse,
           },
           404: {
-            description: 'Not found comments',
+            description: 'Not found post by postId',
             schema: errorResponse,
           },
           500: {
@@ -65,14 +119,77 @@ module.exports = {
           },
         },
       },
+      post: {
+        tags: ['Comment'],
+        summary: 'Create a new comment',
+        parameters: [
+          {
+            name: 'postId',
+            description: 'The post id',
+            in: 'path',
+            required: true,
+            type: 'number',
+          },
+          {
+            name: 'payload',
+            description: 'The content of comment',
+            in: 'body',
+            required: true,
+            schema: {
+              type: 'object',
+              properties: {
+                postId: {
+                  type: 'number',
+                },
+                userId: {
+                  type: 'number',
+                },
+                content: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: 'Create successfully',
+            schema: {
+              type: 'object',
+              properties: {
+                status: {
+                  type: 'string',
+                },
+                message: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Bad request',
+            schema: errorResponse,
+          },
+          404: {
+            description: 'Not found post',
+            schema: errorResponse,
+          },
+          500: {
+            description: 'Internal error server',
+            schema: errorResponse,
+          },
+        },
+      },
+    },
+    '/comments/{commentId}': {
       patch: {
         tags: ['Comment'],
         summary: 'Update comments',
         parameters: [
           {
-            name: 'id',
+            name: 'commentId',
             in: 'path',
-            description: 'The comments id',
+            description: 'The comment id',
             required: true,
             type: 'number',
           },
@@ -85,7 +202,7 @@ module.exports = {
             schema: {
               type: 'object',
               properties: {
-                categoryName: {
+                content: {
                   type: 'string',
                 },
               },
@@ -93,19 +210,8 @@ module.exports = {
           },
         ],
         responses: {
-          200: {
+          204: {
             description: 'Update successfully',
-            schema: {
-              type: 'object',
-              properties: {
-                status: {
-                  type: 'string',
-                },
-                message: {
-                  type: 'string',
-                },
-              },
-            },
           },
           400: {
             description: 'Bad request. Maybe the comment id or payload is invalid',
@@ -126,7 +232,7 @@ module.exports = {
         summary: 'Delete comment by id',
         parameters: [
           {
-            name: 'id',
+            name: 'commentId',
             in: 'path',
             description: 'The comment id',
             type: 'number',
@@ -148,87 +254,6 @@ module.exports = {
           500: {
             description: 'Internal error server',
             schema: errorResponse,
-          },
-        },
-      },
-    },
-    '/comments': {
-      get: {
-        tags: ['Comment'],
-        summary: 'Get comments',
-        responses: {
-          200: {
-            description: 'Get comments successfully',
-            schema: {
-              type: 'object',
-              properties: {
-                status: {
-                  type: 'string',
-                },
-                value: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      id: {
-                        type: 'number',
-                      },
-                      categoryName: {
-                        type: 'string',
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: 'Internal error server',
-            schema: errorResponse,
-          },
-        },
-      },
-      post: {
-        tags: ['Comment'],
-        summary: 'Create a new category',
-        parameters: [
-          {
-            name: 'payload',
-            in: 'body',
-            description: 'The information of category',
-            required: true,
-            schema: {
-              type: 'object',
-              properties: {
-                categoryName: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        ],
-        responses: {
-          201: {
-            description: 'Create successfully',
-            schema: {
-              type: 'object',
-              properties: {
-                status: {
-                  type: 'string',
-                },
-                message: {
-                  type: 'string',
-                },
-              },
-            },
-            400: {
-              description: 'Bad request. Maybe your payload is invalid',
-              schema: errorResponse,
-            },
-            500: {
-              description: 'Internal error server',
-              schema: errorResponse,
-            },
           },
         },
       },
