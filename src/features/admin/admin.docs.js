@@ -389,6 +389,39 @@ module.exports = {
         },
       },
     },
+    '/admin/tags/{tagId}': {
+      delete: {
+        tags: ['Admin'],
+        summary: 'Delete tag by tagId',
+        parameters: [
+          adminUserIdParam,
+          {
+            name: 'tagId',
+            in: 'path',
+            description: 'The tag Id',
+            type: 'number',
+            required: true,
+          },
+        ],
+        responses: {
+          204: {
+            description: 'Delete tag successfully',
+          },
+          400: {
+            description: 'Bad request. Maybe the adminUserId or tagId is invalid',
+            schema: errorResponse,
+          },
+          404: {
+            description: 'Not found tag',
+            schema: errorResponse,
+          },
+          500: {
+            description: 'Internal error server',
+            schema: errorResponse,
+          },
+        },
+      },
+    },
     '/admin/tags': {
       get: {
         tags: ['Admin'],
@@ -422,6 +455,55 @@ module.exports = {
           },
           404: {
             description: 'Not found admin user',
+            schema: errorResponse,
+          },
+          500: {
+            description: 'Internal error server',
+            schema: errorResponse,
+          },
+        },
+      },
+      post: {
+        tags: ['Admin'],
+        summary: 'Create new hash tag',
+        parameters: [
+          adminUserIdParam,
+          {
+            name: 'payload',
+            in: 'body',
+            description: 'The information of tag',
+            required: true,
+            schema: {
+              type: 'object',
+              properties: {
+                tagName: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: 'Create new hash tag successfully',
+            schema: {
+              type: 'object',
+              properties: {
+                status: {
+                  type: 'string',
+                },
+                message: {
+                  type: 'string',
+                },
+              },
+            },
+          },
+          400: {
+            description: 'Bad request. Maybe your adminUserId or payload is invalid',
+            schema: errorResponse,
+          },
+          403: {
+            description: 'Forbidden. Your role is denied',
             schema: errorResponse,
           },
           500: {

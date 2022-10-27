@@ -4,6 +4,9 @@ const PostController = require('./post.controller');
 const PostValidators = require('./post.validators');
 const uploadFile = require('./../../utils/multer');
 
+router.get('/reactions', PostController.getPostByReactions)
+router.get('/shorts', PostController.getShorts);
+router.get('/tops', PostController.getTopPosts);
 router.patch(
   '/addView/:id',
   PostValidators.validatePostId(),

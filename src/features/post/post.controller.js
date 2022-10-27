@@ -98,7 +98,7 @@ module.exports = {
     });
     return res.status(200).json({
       status: 'Success',
-      value: PostUtils.constructResponseValueForGettingAllPosts(posts),
+      value: PostUtils.preparePostData(posts),
     });
   }),
 
@@ -189,5 +189,117 @@ module.exports = {
       views: 1,
     });
     return res.status(204).send();
+  }),
+
+  getTopPosts: catchAsync(async (req, res, next) => {
+    const topPosts = await Post.findAll({
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
+      },
+      order: [['views', 'DESC']],
+      limit: 5,
+      include: [
+        {
+          model: Tag,
+        },
+        {
+          model: Category,
+        },
+        {
+          model: User,
+          attributes: ['id', 'fullName', 'firstName', 'lastName', 'profilePhotoUrl'],
+        },
+        {
+          model: Reaction,
+          attributes: ['id'],
+        },
+        {
+          model: Bookmark,
+          attributes: ['id'],
+        },
+        {
+          model: Comment,
+          attributes: ['id'],
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: PostUtils.preparePostData(topPosts),
+    });
+  }),
+
+  getShorts: catchAsync(async (req, res, next) => {
+    const shorts = await Post.findAll({
+      where: {
+        type: 'video',
+      },
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
+      },
+      order: [['views', 'DESC']],
+      include: [
+        {
+          model: Tag,
+        },
+        {
+          model: Category,
+        },
+        {
+          model: User,
+          attributes: ['id', 'fullName', 'firstName', 'lastName', 'profilePhotoUrl'],
+        },
+        {
+          model: Reaction,
+          attributes: ['id'],
+        },
+        {
+          model: Bookmark,
+          attributes: ['id'],
+        },
+        {
+          model: Comment,
+          attributes: ['id'],
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: PostUtils.preparePostData(shorts),
+    });
+  }),
+
+  getPostByReactions: catchAsync(async (req, res, next) => {
+    const posts = await Post.findAll({
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
+      },
+      order: [['createdAt', 'DESC']],
+      include: [
+        {
+          model: Tag,
+        },
+        {
+          model: Category,
+        },
+        {
+          model: User,
+        },
+        {
+          model: Reaction,
+          required: true // INNER JOIN
+        },
+        {
+          model: Bookmark,
+        },
+        {
+          model: Comment,
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: 'Success',
+      value: PostUtils.preparePostData(posts),
+    });
   }),
 };

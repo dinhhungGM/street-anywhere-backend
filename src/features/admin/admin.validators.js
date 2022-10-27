@@ -66,4 +66,26 @@ module.exports = {
       .withMessage('Invalid roleId. It should be a positive integer')
       .toInt(),
   ],
+  validateTagName: () => [
+    body('tagName')
+      .exists()
+      .withMessage('Please provide the tag name to continue')
+      .trim()
+      .notEmpty()
+      .withMessage('The tag name does not empty')
+      .isLength({ max: 50 })
+      .withMessage('The tag name can not be more than 50 characters'),
+  ],
+  validateTagId: () => [
+    param('tagId')
+      .exists()
+      .withMessage('Please provide the tag id to continue')
+      .trim()
+      .notEmpty()
+      .withMessage('The tag id does not empty')
+      .isInt()
+      .withMessage('The tag id is invalid. It should be a integer')
+      .isLength({ min: 0 })
+      .withMessage('The tag id can not be a negative integer'),
+  ],
 };

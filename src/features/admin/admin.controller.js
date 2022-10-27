@@ -161,4 +161,34 @@ module.exports = {
       value: adminUtils.buildAllRolesResponse(roles),
     });
   }),
+  createNewTag: catchAsync(async (req, res, next) => {
+    const { tagName } = req.body;
+    const checkTag = await models.tag.findAll({
+      raw: true,
+      where: {
+        tagName: {
+          [Op.iLike]: tagName,
+        },
+      },
+    });
+    if (checkTag && checkTag.length) {
+      throw helper.createError(400, 'The hashtag was exist');
+    }
+    await models.tag.create({
+      tagName,
+    });
+    return res.status(201).json({
+      status: 'Success',
+      message: 'Create successfully',
+    });
+  }),
+  deleteTag: catchAsync(async (req, res, next) => {
+    const { tagId } = req.params;
+    const tag = await models.tag.findByPk(+tagId);
+    if (!tag) {
+      throw helper.createError(404, 'Not found tag');
+    }
+    await tag.destroy();
+    return res.status(204).send();
+  }),
 };

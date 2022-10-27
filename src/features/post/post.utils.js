@@ -51,7 +51,7 @@ module.exports = {
     };
     return responseValue;
   },
-  constructResponseValueForGettingAllPosts: (rawValue) => {
+  preparePostData: (rawValue) => {
     return _.map(rawValue, (post) => {
       const {
         dataValues: postDataValues,

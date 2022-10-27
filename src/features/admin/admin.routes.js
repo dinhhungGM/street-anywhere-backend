@@ -52,12 +52,28 @@ router
     AdminController.getAllCategories,
   );
 router
+  .route('/tags/:tagId')
+  .delete(
+    AdminValidators.validateAdminUserId(),
+    AdminValidators.validateTagId(),
+    ErrorController.catchValidationError,
+    AdminController.checkIsAdmin,
+    AdminController.deleteTag,
+  );
+router
   .route('/tags')
   .get(
     AdminValidators.validateAdminUserId(),
     ErrorController.catchValidationError,
     AdminController.checkIsAdmin,
     AdminController.getAllHashTags,
+  )
+  .post(
+    AdminValidators.validateAdminUserId(),
+    AdminValidators.validateTagName(),
+    ErrorController.catchValidationError,
+    AdminController.checkIsAdmin,
+    AdminController.createNewTag,
   );
 
 module.exports = router;
