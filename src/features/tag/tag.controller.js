@@ -56,7 +56,7 @@ module.exports = {
             [Op.ne]: id,
           },
           tagName: {
-            [Op.iLike]: tagName,
+            [Op.iLike]: `%${tagName}%`,
           },
         },
       }),
@@ -68,13 +68,12 @@ module.exports = {
       throw helper.createError(400, 'Your tag name you wanna update was exist. Please choose another one');
     }
     await findingTag.update({ tagName });
-    await findingTag.save();
     return res.status(200).json({
       status: 'Success',
       message: 'Update successfully',
     });
   }),
-  
+
   deleteTag: catchAsync(async (req, res) => {
     const { id } = req.params;
     const deletedCount = await Tag.destroy({

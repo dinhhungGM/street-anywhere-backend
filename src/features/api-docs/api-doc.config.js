@@ -3,6 +3,8 @@ const { BookmarkDocs } = require('../bookmark');
 const { CategoryDocs } = require('../category');
 const { CommentDocs } = require('../comment');
 const { PostDocs } = require('../post');
+const { ReactionDocs } = require('../reaction');
+const { TagDocs } = require('../tag');
 const { AuthDocs } = require('./../auth');
 
 const env = process.env.NODE_ENV || 'development';
@@ -21,7 +23,16 @@ module.exports = {
   },
   host: process.env.HOST,
   basePath: process.env.BASE_PATH,
-  tags: [AuthDocs.tag, AdminDocs.tag, BookmarkDocs.tag, CategoryDocs.tag, CommentDocs.tag, PostDocs.tag],
+  tags: [
+    AuthDocs.tag,
+    AdminDocs.tag,
+    BookmarkDocs.tag,
+    CategoryDocs.tag,
+    CommentDocs.tag,
+    PostDocs.tag,
+    ReactionDocs.tag,
+    TagDocs.tag,
+  ],
   schemes: [protocol],
   consumes: ['application/json'],
   produces: ['application/json'],
@@ -32,5 +43,7 @@ module.exports = {
     ...CategoryDocs.paths,
     ...CommentDocs.paths,
     ...PostDocs.paths,
+    ...ReactionDocs.paths,
+    ...TagDocs.paths,
   },
 };

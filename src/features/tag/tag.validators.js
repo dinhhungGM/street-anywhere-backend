@@ -1,15 +1,20 @@
-const { check } = require('express-validator');
+const { body, param } = require('express-validator');
 
 module.exports = {
   validateTagId: () => [
-    check('id').isInt().withMessage('Please provide a valid tag id. It should be a positive integer'),
+    param('id')
+      .isInt()
+      .withMessage('Please provide a valid tag id. It should be a positive integer')
+      .isLength({ min: 1 })
+      .withMessage('Please provide a valid tag id. It should be a positive integer'),
   ],
   validateTagPayload: () => [
-    check('tagName')
+    body('tagName')
       .exists()
       .withMessage('The tag name is required. Please provide tag name')
       .trim()
-      .notEmpty('Please provide your tag name, it is not empty')
+      .notEmpty()
+      .withMessage('Please provide your tag name, it is not empty')
       .isLength({ max: 20 })
       .withMessage('The tag name can not be more than 20 characters'),
   ],
