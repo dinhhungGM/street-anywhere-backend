@@ -10,6 +10,7 @@ const {
   comment: Comment,
 } = require('./../../models');
 const PostUtils = require('./post.utils');
+const { Op } = require('sequelize');
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
@@ -104,14 +105,20 @@ module.exports = {
 
   getMediaSource: catchAsync(async (req, res) => {
     const { id } = req.params;
-    const post = await Post.findByPk(+id, {
+    const post = await Post.findOne({
       raw: true,
       attributes: {
         include: ['type', 'mediaSource'],
       },
+      where: {
+        type: {
+          [Op.iLike]: '%image%',
+        },
+        id: +id,
+      },
     });
     if (!post) {
-      throw helper.createError(404, 'No media source found!');
+      throw helper.createError(404, 'The post does not have image!');
     }
     return res.header('Content-Type', post.type).status(200).send(post.mediaSource);
   }),
@@ -148,6 +155,10 @@ module.exports = {
 
   getPostByUserId: catchAsync(async (req, res, next) => {
     const { userId } = req.params;
+    const checkUser = await User.findByPk(+userId);
+    if (!checkUser) {
+      throw helper.createError(404, 'Not found user');
+    }
     const posts = await Post.findAndCountAll({
       where: {
         userId: +userId,
@@ -287,7 +298,7 @@ module.exports = {
         },
         {
           model: Reaction,
-          required: true // INNER JOIN
+          required: true, // INNER JOIN
         },
         {
           model: Bookmark,
