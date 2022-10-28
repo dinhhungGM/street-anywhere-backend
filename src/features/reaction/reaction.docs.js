@@ -15,14 +15,14 @@ module.exports = {
     description: 'API for reactions in the system',
   },
   paths: {
-    '/reactions/{id}': {
+    '/reactions/post/{postId}': {
       get: {
         tags: ['Reactions'],
-        summary: 'Get reaction by id',
+        summary: 'Get all reaction of post',
         parameters: [
           {
-            name: 'id',
-            description: 'The reactions id',
+            name: 'postId',
+            description: 'The post ID',
             in: 'path',
             required: true,
             type: 'number',
@@ -40,11 +40,38 @@ module.exports = {
                 value: {
                   type: 'object',
                   properties: {
-                    id: {
+                    reactionCountAll: {
                       type: 'number',
                     },
-                    reactionType: {
-                      type: 'string',
+                    reactionDetails: {
+                      type: 'object',
+                      properties: {
+                        '[reactionType]': {
+                          type: 'object',
+                          properties: {
+                            count: {
+                              type: 'number',
+                            },
+                            users: {
+                              type: 'array',
+                              items: {
+                                type: 'object',
+                                properties: {
+                                  userId: {
+                                    type: 'number',
+                                  },
+                                  fullName: {
+                                    type: 'number',
+                                  },
+                                  postReactionId: {
+                                    type: 'number',
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
                     },
                   },
                 },
@@ -52,11 +79,11 @@ module.exports = {
             },
           },
           400: {
-            description: 'Bad request. Maybe the id is invalid',
+            description: 'Bad request',
             schema: errorResponse,
           },
           404: {
-            description: 'Not found reactions',
+            description: 'Not found',
             schema: errorResponse,
           },
           500: {
@@ -65,29 +92,77 @@ module.exports = {
           },
         },
       },
-      patch: {
+      post: {
         tags: ['Reactions'],
-        summary: 'Update reactions',
+        summary: 'Add reaction',
         parameters: [
           {
-            name: 'id',
+            name: 'postId',
+            description: 'The post ID',
             in: 'path',
-            description: 'The reaction id',
+            required: true,
+            type: 'number',
+          },
+          {
+            name: 'payload',
+            description: 'Payload',
+            in: 'body',
+            required: true,
+            type: 'object',
+            properties: {
+              postId: {
+                type: 'number',
+              },
+              userId: {
+                type: 'number',
+              },
+              reactionId: {
+                type: 'number',
+              },
+            },
+          },
+        ],
+        responses: {
+          201: {
+            description: 'Add reaction successfully',
+            schema: errorResponse,
+          },
+          400: {
+            description: 'Bad request',
+            schema: errorResponse,
+          },
+          404: {
+            description: 'Not found',
+            schema: errorResponse,
+          },
+          500: {
+            description: 'Internal error server',
+            schema: errorResponse,
+          },
+        },
+      },
+    },
+    '/reactions/{postReactionId}': {
+      patch: {
+        tags: ['Reactions'],
+        summary: 'Update reaction',
+        parameters: [
+          {
+            name: 'postReactionId',
+            in: 'path',
+            description: 'The Post Reaction ID',
             required: true,
             type: 'number',
           },
           {
             name: 'payload',
             in: 'body',
-            description: 'The new reaction name',
+            description: 'The new reaction id',
             required: true,
             type: 'object',
-            schema: {
-              type: 'object',
-              properties: {
-                reactionType: {
-                  type: 'string',
-                },
+            properties: {
+              reactionId: {
+                type: 'number',
               },
             },
           },
@@ -95,24 +170,14 @@ module.exports = {
         responses: {
           200: {
             description: 'Update successfully',
-            schema: {
-              type: 'object',
-              properties: {
-                status: {
-                  type: 'string',
-                },
-                message: {
-                  type: 'string',
-                },
-              },
-            },
+            schema: errorResponse,
           },
           400: {
-            description: 'Bad request. Maybe the reaction id or payload is invalid',
+            description: 'Bad request',
             schema: errorResponse,
           },
           404: {
-            description: 'Not found reaction',
+            description: 'Not found',
             schema: errorResponse,
           },
           500: {
@@ -123,115 +188,31 @@ module.exports = {
       },
       delete: {
         tags: ['Reactions'],
-        summary: 'Delete reaction by id',
+        summary: 'Delete post reaction',
         parameters: [
           {
-            name: 'id',
+            name: 'postReactionId',
             in: 'path',
-            description: 'The reaction id',
-            type: 'number',
+            description: 'The Post Reaction ID',
             required: true,
+            type: 'number',
           },
         ],
         responses: {
           204: {
-            description: 'Delete reaction successfully',
+            description: 'Delete successfully',
           },
           400: {
-            description: 'Bad request. Maybe the id is invalid',
+            description: 'Bad request',
             schema: errorResponse,
           },
           404: {
-            description: 'Not found reaction',
+            description: 'Not found',
             schema: errorResponse,
           },
           500: {
             description: 'Internal error server',
             schema: errorResponse,
-          },
-        },
-      },
-    },
-    '/reactions': {
-      get: {
-        tags: ['Reactions'],
-        summary: 'Get reactions',
-        responses: {
-          200: {
-            description: 'Get reactions successfully',
-            schema: {
-              type: 'object',
-              properties: {
-                status: {
-                  type: 'string',
-                },
-                value: {
-                  type: 'array',
-                  items: {
-                    type: 'object',
-                    properties: {
-                      id: {
-                        type: 'number',
-                      },
-                      reactionType: {
-                        type: 'string',
-                      },
-                      icon: {
-                        type: 'string',
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-          500: {
-            description: 'Internal error server',
-            schema: errorResponse,
-          },
-        },
-      },
-      post: {
-        tags: ['Reactions'],
-        summary: 'Create a new reaction',
-        parameters: [
-          {
-            name: 'payload',
-            in: 'body',
-            description: 'The information of reaction',
-            required: true,
-            schema: {
-              type: 'object',
-              properties: {
-                reactionType: {
-                  type: 'string',
-                },
-              },
-            },
-          },
-        ],
-        responses: {
-          201: {
-            description: 'Create successfully',
-            schema: {
-              type: 'object',
-              properties: {
-                status: {
-                  type: 'string',
-                },
-                message: {
-                  type: 'string',
-                },
-              },
-            },
-            400: {
-              description: 'Bad request. Maybe your payload is invalid',
-              schema: errorResponse,
-            },
-            500: {
-              description: 'Internal error server',
-              schema: errorResponse,
-            },
           },
         },
       },
