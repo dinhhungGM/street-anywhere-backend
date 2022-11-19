@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.user);
       this.belongsTo(models.reaction);
+      this.belongsTo(models.post);
     }
   }
   postReaction.init(

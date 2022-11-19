@@ -5,9 +5,9 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       this.belongsTo(models.user);
       this.belongsToMany(models.tag, { through: models.postTag, onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-      this.belongsToMany(models.category, { through: models.postCategory });
+      this.belongsToMany(models.category, { through: models.postCategory, onUpdate: 'CASCADE', onDelete: 'CASCADE' });
       this.hasMany(models.comment, { onUpdate: 'CASCADE', onDelete: 'CASCADE' });
-      this.belongsToMany(models.reaction, { through: models.postReaction });
+      this.belongsToMany(models.reaction, { through: models.postReaction, onUpdate: 'CASCADE', onDelete: 'CASCADE' });
       this.hasMany(models.bookmark, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
     }
   }

@@ -17,10 +17,11 @@ module.exports = {
     if (existedTags.length) {
       throw helper.createError(400, 'Tag was existed. Please choose another tag');
     }
-    await Tag.create({ tagName });
+    const newTag = await Tag.create({ tagName });
     return res.status(201).json({
       status: 'Success',
       message: 'Create a new tag successfully',
+      value: newTag,
     });
   }),
 

@@ -17,10 +17,11 @@ module.exports = {
     if (existedCategories.length) {
       throw helper.createError(400, 'Category was existed. Please choose another category');
     }
-    await Category.create({ categoryName });
+    const newCategory = await Category.create({ categoryName });
     return res.status(201).json({
       status: 'Success',
       message: 'Create a new category successfully',
+      value: newCategory,
     });
   }),
 
