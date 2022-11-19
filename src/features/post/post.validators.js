@@ -1,9 +1,6 @@
 const { param, body } = require('express-validator');
 
 module.exports = {
-  validatePostId: () => [
-    param('id').isInt().withMessage('Please provide valid post id. It should be a positive integer'),
-  ],
   validateNewPostPayload: () => [
     body('title')
       .exists()
@@ -59,6 +56,14 @@ module.exports = {
     body('videoYtbUrl').optional().trim().notEmpty().withMessage('Please provide the youtube url'),
   ],
   validateUserId: () => [
-    param('userId').trim().isInt('Please provide a valid user id. It should be a positive integer'),
+    param('userId').trim().isInt('Please provide a valid user id. It should be a positive integer').toInt(),
+  ],
+  validatePostId: () => [
+    param('id')
+      .trim()
+      .isInt('Please provide a valid post id. It should be a positive integer')
+      .isLength({ min: 0 })
+      .withMessage('Please provide a valid post id. It should be a positive integer')
+      .toInt(),
   ],
 };

@@ -11,6 +11,7 @@ const {
 } = require('./../../models');
 const PostUtils = require('./post.utils');
 const { Op } = require('sequelize');
+const _ = require('lodash');
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
@@ -51,6 +52,7 @@ module.exports = {
     return res.status(201).json({
       status: 'Success',
       message: 'Create a new post successfully',
+      value: newPost,
     });
   }),
 
@@ -312,5 +314,15 @@ module.exports = {
       status: 'Success',
       value: PostUtils.preparePostData(posts),
     });
+  }),
+
+  deletePost: catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const post = await Post.findByPk(+id);
+    if (_.isNil(post)) {
+      throw helper.createError(404, 'Not found post');
+    }
+    await post.destroy();
+    return res.status(204).send();
   }),
 };

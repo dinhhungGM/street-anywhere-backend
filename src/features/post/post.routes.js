@@ -4,7 +4,7 @@ const PostController = require('./post.controller');
 const PostValidators = require('./post.validators');
 const uploadFile = require('./../../utils/multer');
 
-router.get('/reactions', PostController.getPostByReactions)
+router.get('/reactions', PostController.getPostByReactions);
 router.get('/shorts', PostController.getShorts);
 router.get('/tops', PostController.getTopPosts);
 router.patch(
@@ -25,7 +25,10 @@ router.get(
   ErrorController.catchValidationError,
   PostController.getMediaSource,
 );
-router.get('/:id', PostValidators.validatePostId(), ErrorController.catchValidationError, PostController.getPostById);
+router
+  .route('/:id')
+  .get(PostValidators.validatePostId(), ErrorController.catchValidationError, PostController.getPostById)
+  .delete(PostValidators.validatePostId(), ErrorController.catchValidationError, PostController.deletePost);
 router
   .route('')
   .get(PostController.getAllPosts)
