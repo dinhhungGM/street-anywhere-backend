@@ -1,7 +1,8 @@
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
-const { user: User } = require('./../../models');
+const models = require('./../../models');
 const _ = require('lodash');
+const { Op } = require('sequelize');
 
 module.exports = {
   getAvatar: catchAsync(async (req, res) => {
@@ -27,18 +28,47 @@ module.exports = {
         userPayload[key] = req.body[key];
       }
     }
-    const user = await User.findByPk(+userId);
+    const user = await models.user.findByPk(+userId);
     if (!user) {
       throw helper.createError(404, 'Not found users');
     }
     if (avatar) {
       user.photoSource = avatar.buffer;
     }
-    
+
     await user.save();
     return res.status(200).json({
       status: 'Success',
       message: 'Update user successfully',
+    });
+  }),
+  getProfileOfUser: catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    let user = await models.user.findByPk(+userId, {
+      attributes: {
+        exclude: ['password', 'coverImageSrc', 'photoSource'],
+      },
+      include: [
+        {
+          model: models.post,
+          include: [
+            {
+              model: models.comment,
+            },
+            {
+              model: models.reaction,
+            },
+            {
+              model: models.bookmark,
+            },
+          ],
+        },
+      ],
+    });
+    const { comments, bookmarks, profilePhotoUrl, coverImageUrl, ...rest } = user.toJSON();
+    return res.status(200).json({
+      status: 'Success',
+      value: user,
     });
   }),
 };

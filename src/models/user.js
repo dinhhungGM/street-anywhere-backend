@@ -10,6 +10,21 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(models.rank);
       this.belongsToMany(models.reaction, { through: models.postReaction, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       this.hasMany(models.bookmark, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      this.belongsToMany(models.user, {
+        foreignKey: 'userId',
+        as: 'userFollower',
+        through: models.follower,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      this.belongsToMany(models.user, {
+        foreignKey: 'followerId',
+        as: 'userFollowing',
+        through: models.follower,
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+      });
+      this.hasMany(models.notifications, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
     }
   }
   user.init(
@@ -26,7 +41,7 @@ module.exports = (sequelize, DataTypes) => {
       fullName: {
         type: DataTypes.VIRTUAL,
         get() {
-          return `${this.firstName} ${this.lastName}`;
+          return `${ this.firstName } ${ this.lastName }`;
         },
         set() {
           return new Error(`Do not try to set the fullName value`);
@@ -41,6 +56,11 @@ module.exports = (sequelize, DataTypes) => {
         defaultValue: null,
       },
       rankId: DataTypes.INTEGER,
+      coverImageUrl: DataTypes.STRING,
+      coverImageSrc: DataTypes.BLOB,
+      description: DataTypes.TEXT,
+      phone: DataTypes.STRING,
+      email: DataTypes.STRING,
     },
     {
       sequelize,
