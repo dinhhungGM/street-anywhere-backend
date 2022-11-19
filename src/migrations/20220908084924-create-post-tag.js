@@ -15,6 +15,8 @@ module.exports = {
           model: 'posts',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       tagId: {
         type: Sequelize.INTEGER,
@@ -23,7 +25,9 @@ module.exports = {
           model: 'tags',
           key: 'id',
         },
-      }
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
     });
   },
   async down(queryInterface, Sequelize) {

@@ -7,6 +7,8 @@ module.exports = {
         model: 'users',
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
     });
   },
   async down(queryInterface, Sequelize) {

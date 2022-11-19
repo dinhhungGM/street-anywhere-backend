@@ -6,27 +6,31 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       postId: {
-        type: Sequelize.INTEGER, 
-        allowNull: false, 
+        type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
-          model: 'posts', 
-          key: 'id'
-        }
+          model: 'posts',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
       reactionId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
           model: 'reactions',
-          key: 'id'
-        }
-      }
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+      },
     });
   },
   async down(queryInterface, Sequelize) {
     await queryInterface.dropTable('postReactions');
-  }
+  },
 };
