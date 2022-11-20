@@ -8,6 +8,7 @@ const {
   reaction: Reaction,
   bookmark: Bookmark,
   comment: Comment,
+  postReaction,
 } = require('./../../models');
 const PostUtils = require('./post.utils');
 const { Op } = require('sequelize');

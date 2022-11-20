@@ -38,4 +38,5 @@ router
     ErrorController.catchValidationError,
     PostController.handleCreateNewPost,
   );
+router.use('*', ErrorController.handleNotFound);
 module.exports = router;
