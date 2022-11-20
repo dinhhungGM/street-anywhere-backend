@@ -10,7 +10,7 @@ module.exports = {
     const findingUser = await models.user.findOne({
       where: { username: requestPayload.username },
       attributes: {
-        exclude: ['photoSource', 'rankId', 'imgType'],
+        exclude: ['photoSource', 'rankId', 'imgType', 'coverImageSrc'],
       },
       include: [{ model: models.role }, { model: models.rank }],
     });
