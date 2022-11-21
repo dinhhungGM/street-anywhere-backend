@@ -88,6 +88,7 @@ module.exports = {
         },
         {
           model: User,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl']
         },
         {
           model: Reaction,
