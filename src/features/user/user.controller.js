@@ -97,6 +97,9 @@ module.exports = {
       include: [
         {
           model: models.post,
+          attributes: {
+            exclude: ['mediaSource'],
+          },
           include: [
             {
               model: models.comment,

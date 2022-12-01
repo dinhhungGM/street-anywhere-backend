@@ -10,7 +10,13 @@ router
     ErrorController.catchValidationError,
     NotificationController.getNotifications,
   );
-
+router
+  .route('/:notificationId')
+  .patch(
+    NotificationValidators.validateNotificationId(),
+    ErrorController.catchValidationError,
+    NotificationController.updateStatus,
+  );
 router
   .route('')
   .post(

@@ -41,24 +41,47 @@ module.exports = {
       include: [
         {
           model: models.user,
-          attributes: ['firstName', 'lastName', 'profilePhotoUrl'],
+          attributes: ['firstName', 'lastName', 'fullName', 'profilePhotoUrl'],
+        },
+        {
+          model: models.post,
+          attributes: ['shortTitle'],
         },
       ],
       order: [['createdAt', 'desc']],
     });
     const responseData = {
       count: notifications.count,
+      unSeenCount: _.filter(notifications.rows, (notification) => !notification.isSeen).length,
       details: _.map(notifications.rows, (item) => {
-        const { user, ...rest } = item.toJSON();
+        const { user, post, createdAt, ...rest } = item.toJSON();
         return {
           ...rest,
           ...user,
+          ...post,
+          createdAt: new Date(createdAt).toLocaleString(),
         };
       }),
     };
     return res.status(200).json({
       status: 'Success',
       value: responseData,
+    });
+  }),
+  updateStatus: catchAsync(async (req, res, next) => {
+    const { notificationId } = req.params;
+    const instance = await models.notifications.findByPk(+notificationId);
+    if (_.isNil(instance)) {
+      throw helper.createError(404, 'Not found your notification');
+    }
+    await instance.update({
+      isSeen: true,
+    });
+    await instance.reload();
+    return res.status(200).json({
+      status: 'Success',
+      message: 'Change status successfully',
+      value: instance,
     });
   }),
 };

@@ -10,6 +10,7 @@ const { ApiDocsRoutes } = require('./../features/api-docs');
 const { ErrorController } = require('../features/error');
 const { AdminRoutes } = require('../features/admin');
 const { FollowerRoutes } = require('../features/follower');
+const { NotificationsRoutes } = require('../features/notifications');
 
 const createRoutes = (app) => {
   app.use('/api/auth', AuthRoutes);
@@ -22,6 +23,7 @@ const createRoutes = (app) => {
   app.use('/api/bookmarks', BookmarkRoutes);
   app.use('/api/admin', AdminRoutes);
   app.use('/api/followers', FollowerRoutes);
+  app.use('/api/notifications', NotificationsRoutes);
   app.use('/', ApiDocsRoutes);
   app.use('*', ErrorController.handleNotFound);
   app.use(ErrorController.handleError);

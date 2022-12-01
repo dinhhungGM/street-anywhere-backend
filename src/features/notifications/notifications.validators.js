@@ -43,4 +43,16 @@ module.exports = {
       .withMessage('The userId is invalid. It must be more than 0')
       .toInt(),
   ],
+  validateNotificationId: () => [
+    param('notificationId')
+      .exists()
+      .withMessage('Please provide notificationId')
+      .notEmpty()
+      .withMessage('The notificationId does not empty')
+      .isInt()
+      .withMessage("The notificationId is invalid. It's not a number")
+      .isLength({ min: 0 })
+      .withMessage('The notificationId is invalid. It must be more than 0')
+      .toInt(),
+  ],
 };

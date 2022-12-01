@@ -10,12 +10,16 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       this.belongsTo(models.user);
+      this.belongsTo(models.post);
     }
   }
   notifications.init(
     {
       userId: DataTypes.INTEGER,
       type: DataTypes.STRING,
+      postId: DataTypes.INTEGER,
+      isSeen: DataTypes.BOOLEAN,
+      reactionType: DataTypes.STRING,
     },
     {
       sequelize,
