@@ -32,9 +32,6 @@ module.exports = {
       throw helper.createError(404, 'Not found user');
     }
     const notifications = await models.notifications.findAndCountAll({
-      where: {
-        userId: +userId,
-      },
       attributes: {
         exclude: ['updatedAt'],
       },
@@ -46,6 +43,9 @@ module.exports = {
         {
           model: models.post,
           attributes: ['shortTitle'],
+          where: {
+            userId: +userId,
+          },
         },
       ],
       order: [['createdAt', 'desc']],
@@ -59,6 +59,7 @@ module.exports = {
           ...rest,
           ...user,
           ...post,
+          shortTitle: _.startCase(_.lowerCase(post.shortTitle)),
           createdAt: new Date(createdAt).toLocaleString(),
         };
       }),
