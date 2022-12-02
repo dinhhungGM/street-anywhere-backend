@@ -14,8 +14,8 @@ module.exports = {
   swagger: '2.0',
   info: {
     version: '1.0.0',
-    title: 'UIT Thesis',
-    description: 'UIT Thesis',
+    title: 'Street AnyWhere API',
+    description: 'Street AnyWhere API',
     license: {
       name: 'MIT',
       url: 'https://opensource.org/licenses/MIT',
