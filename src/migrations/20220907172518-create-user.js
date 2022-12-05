@@ -40,6 +40,8 @@ module.exports = {
           model: 'roles',
           key: 'id',
         },
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE'
       },
     });
   },

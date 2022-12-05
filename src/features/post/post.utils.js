@@ -7,7 +7,7 @@ module.exports = {
       const { reactions, bookmarks, comments, ...rest } = post;
       return {
         ...rest,
-        imageUrl: post.type === 'video' ? null : `${process.env.BACKEND_URL}/posts/media/${post.id}`,
+        imageUrl: post.type === 'video' ? null : `${ process.env.BACKEND_URL }/posts/media/${ post.id }`,
         tags: _.map(post.tags, 'tagName'),
         categories: _.map(post.categories, 'categoryName'),
         reactionCount: reactions.length,
@@ -39,13 +39,13 @@ module.exports = {
     // Construct response payload
     const responseValue = {
       ...postDataValues,
-      imageUrl: `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,
+      imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ postDataValues.id }`,
       tags: _.map(tags, 'tagName'),
       categories: _.map(categories, 'categoryName'),
       user: {
         id: userInfo.id,
-        fullName: `${userInfo.firstName} ${userInfo.lastName}`,
-        profilePhotoUrl: userInfo.profilePhotoUrl || `${process.env.BACKEND_URL}/static/images/avatar.png`,
+        fullName: _.startCase(_.toLower(`${ userInfo.firstName } ${ userInfo.lastName }`)),
+        profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
       },
       reactions: reactionDetails,
     };
@@ -63,13 +63,13 @@ module.exports = {
       return {
         ...restInfo,
         imageUrl:
-          postDataValues.type === 'video' ? null : `${process.env.BACKEND_URL}/posts/media/${postDataValues.id}`,
+          postDataValues.type === 'video' ? null : `${ process.env.BACKEND_URL }/posts/media/${ postDataValues.id }`,
         tags: _.map(tags, 'tagName'),
         categories: _.map(categories, 'categoryName'),
         user: {
           userId: userInfo.id,
-          fullName: `${userInfo.firstName || ''} ${userInfo.lastName || ''}`,
-          profilePhotoUrl: userInfo.profilePhotoUrl || `${process.env.BACKEND_URL}/static/images/avatar.png`,
+          fullName: _.startCase(_.toLower(`${ userInfo.firstName || '' } ${ userInfo.lastName || '' }`)),
+          profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
         },
         reactionCount: reactions.length,
         bookmarkCount: bookmarks.length,
