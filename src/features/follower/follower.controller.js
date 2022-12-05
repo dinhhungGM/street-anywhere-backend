@@ -43,20 +43,30 @@ module.exports = {
     }
     return res.status(204).send();
   }),
-  getFollowerByUserId: catchAsync(async (req, res, next) => {
-    const { userId } = req.params;
-    const user = await models.user.findByPk(+userId);
+  getFollowerByFollowerId: catchAsync(async (req, res, next) => {
+    const { followerId } = req.params;
+    const user = await models.user.findByPk(+followerId);
     if (_.isNil(user)) {
       throw helper.createError(404, 'Not found user');
     }
-    const followers = await models.follower.findAll({
-      where: {
-        followerId: +userId,
-      },
-    });
+    const [results] = await models.sequelize.query(
+      `
+      SELECT u.id, u."firstName", u."lastName", u."profilePhotoUrl" 
+      FROM followers f JOIN users u ON f."userId" = u."id"
+      WHERE f."followerId" = ${ followerId }
+      `,
+    );
+    // Construct data
+    let responseValues = _.map(results, (user) => ({
+      userId: user.id,
+      fullName: _.startCase(_.toLower(`${ user.firstName.trim() } ${ user.lastName.trim() }`)),
+      profilePhotoUrl: user.profilePhotoUrl,
+    }));
+    // Remove duplicate
+    responseValues = _.unionBy(responseValues, 'userId');
     return res.status(200).send({
       status: 'Success',
-      value: followers,
+      value: responseValues,
     });
   }),
 };

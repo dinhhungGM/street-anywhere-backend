@@ -4,10 +4,10 @@ const FollowerValidators = require('./follower.validators');
 const { ErrorController } = require('./../error');
 
 router.get(
-  '/user/:userId',
-  FollowerValidators.validateUserId(),
+  '/user/:followerId',
+  FollowerValidators.validateFollowerId(),
   ErrorController.catchValidationError,
-  FollowerController.getFollowerByUserId,
+  FollowerController.getFollowerByFollowerId,
 );
 router
   .route('')
