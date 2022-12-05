@@ -11,6 +11,7 @@ const { ErrorController } = require('../features/error');
 const { AdminRoutes } = require('../features/admin');
 const { FollowerRoutes } = require('../features/follower');
 const { NotificationsRoutes } = require('../features/notifications');
+const { StatisticationRoutes } = require('../features/statistication');
 
 const createRoutes = (app) => {
   app.use('/api/auth', AuthRoutes);
@@ -24,6 +25,7 @@ const createRoutes = (app) => {
   app.use('/api/admin', AdminRoutes);
   app.use('/api/followers', FollowerRoutes);
   app.use('/api/notifications', NotificationsRoutes);
+  app.use('/api/stats', StatisticationRoutes);
   app.use('/', ApiDocsRoutes);
   app.use('*', ErrorController.handleNotFound);
   app.use(ErrorController.handleError);

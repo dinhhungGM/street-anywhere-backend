@@ -2,10 +2,7 @@
 const { Model } = require('sequelize');
 module.exports = (sequelize, DataTypes) => {
   class follower extends Model {
-    static associate(models) {
-      this.belongsTo(models.user);
-      this.belongsTo(models.user);
-    }
+    static associate(models) {}
   }
   follower.init(
     {
