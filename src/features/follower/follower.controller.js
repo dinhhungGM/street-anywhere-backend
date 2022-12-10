@@ -2,7 +2,6 @@ const models = require('./../../models');
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
 const _ = require('lodash');
-const { Op } = require('sequelize');
 
 module.exports = {
   addFollower: catchAsync(async (req, res, next) => {
@@ -14,13 +13,14 @@ module.exports = {
     if (_.isNil(follower)) {
       throw helper.createError(404, 'Not found follower');
     }
-    await models.follower.create({
+    const newFollower = await models.follower.create({
       userId: +userId,
       followerId: +followerId,
     });
     return res.status(201).json({
-      status: 'Success',
+      status: '201: Created',
       message: 'Follow user successfully',
+      value: newFollower,
     });
   }),
   deleteFollower: catchAsync(async (req, res, next) => {

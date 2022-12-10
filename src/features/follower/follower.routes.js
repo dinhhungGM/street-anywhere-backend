@@ -9,16 +9,19 @@ router.get(
   ErrorController.catchValidationError,
   FollowerController.getFollowerByFollowerId,
 );
+
+router.post(
+  '/unfollow',
+  FollowerValidators.validateUserIdAndFollowerId(),
+  ErrorController.catchValidationError,
+  FollowerController.deleteFollower,
+);
+
 router
   .route('')
   .post(
     FollowerValidators.validateUserIdAndFollowerId(),
     ErrorController.catchValidationError,
     FollowerController.addFollower,
-  )
-  .delete(
-    FollowerValidators.validateUserIdAndFollowerId(),
-    ErrorController.catchValidationError,
-    FollowerController.deleteFollower,
   );
 module.exports = router;
