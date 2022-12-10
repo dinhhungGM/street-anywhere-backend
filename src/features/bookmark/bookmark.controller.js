@@ -22,10 +22,16 @@ module.exports = {
     if (_.isNil(checkPost)) {
       throw helpers.createError(400, 'The post does not exist');
     }
-    await Bookmark.create(req.body);
+    const newBookmark = await Bookmark.create(req.body);
+    const { id, ...rest } = newBookmark.toJSON();
+    const responseValue = {
+      bookmarkId: id,
+      ...rest,
+    };
     return res.status(201).json({
       status: 'Success',
       message: 'Add bookmark successfully',
+      value: responseValue,
     });
   }),
   getBookmarkByUserId: catchAsync(async (req, res, next) => {
