@@ -40,7 +40,7 @@ module.exports = {
     }
     return res.status(200).json({
       status: 'Success',
-      value: responseValues,
+      value: results,
     });
   }),
   calculateDataOfPost: catchAsync(async (req, res, next) => {
