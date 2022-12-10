@@ -9,7 +9,6 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       type: {
-        // React, Comment, Follow
         type: Sequelize.STRING,
         allowNull: false,
       },

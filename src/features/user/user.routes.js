@@ -4,6 +4,10 @@ const UserValidators = require('./user.validators');
 const UserController = require('./user.controller');
 const uploadFile = require('./../../utils/multer');
 
+router.get('/reacted/:userId', UserValidators.validateUserId(), UserController.getReactedPostOfUser);
+router.get('/bookmarked/:userId', UserValidators.validateUserId(), UserController.getBookmarkedPostOfUser);
+router.get('/following/:userId', UserValidators.validateUserId(), UserController.getFollowingUsers);
+
 router.get(
   '/avatar/:userId',
   UserValidators.validateUserId(),

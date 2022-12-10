@@ -3,6 +3,8 @@ const catchAsync = require('../../utils/catchAsync');
 const helper = require('../../utils/helper');
 const models = require('./../../models');
 const adminUtils = require('./admin.utils');
+const errorUtils = require('../../utils/error');
+const authConstants = require('./admin.constants');
 
 module.exports = {
   checkIsAdmin: catchAsync(async (req, res, next) => {
@@ -15,11 +17,11 @@ module.exports = {
       ],
     });
     if (!currentUser) {
-      throw helper.createError(404, 'The current user does not exist so we can not process your request');
+      throw errorUtils.createNotFoundError(authConstants.ERROR_NOT_FOUND_USER);
     }
     currentUser = currentUser.toJSON();
-    if (currentUser.role.roleName !== 'Administrator') {
-      throw helper.createError(403, 'Request is denied because of your role');
+    if (currentUser.role.roleName !== authConstants.ADMIN_ROLE) {
+      throw errorUtils.createForbiddenError(authConstants.ERROR_NOT_ALLOW);
     }
     return next();
   }),
@@ -45,7 +47,8 @@ module.exports = {
       ],
     });
     return res.status(200).json({
-      status: 'Success',
+      status: 'OK',
+      message: 'Handle request successfully',
       value: adminUtils.buildAllUsersResponse(allUsers),
     });
   }),
@@ -57,7 +60,7 @@ module.exports = {
       },
     });
     if (!count) {
-      throw helper.createError(404, 'Not found user to continue');
+      throw errorUtils.createNotFoundError(authConstants.ERROR_NOT_FOUND_USER);
     }
     return res.status(204).send();
   }),
@@ -88,10 +91,10 @@ module.exports = {
       models.role.findByPk(+roleId),
     ]);
     if (checkExist && checkExist.length) {
-      throw helper.createError(400, 'The username was existed. Please choose another username');
+      throw errorUtils.createBadRequestError(authConstants.ERROR_USER_WAS_EXISTED);
     }
     if (!checkRole) {
-      throw helper.createError(403, 'Not found your role. Please check the role again');
+      throw errorUtils.createForbiddenError(authConstants.ERROR_ROLE_NOT_FOUND);
     }
     await models.user.create({
       username,

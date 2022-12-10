@@ -23,5 +23,6 @@ module.exports = {
       },
     },
     use_env_variable: 'PROD_CONNECTION_STRING',
+    logging: false,
   },
 };

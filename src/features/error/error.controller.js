@@ -3,12 +3,14 @@ const { validationResult } = require('express-validator');
 
 module.exports = {
   handleError: (err, req, res, next) => {
-    const status = err.status || 'Error';
+    const status = err.status || 'Internal Server Error';
     const statusCode = err.statusCode || 500;
     const message = err.message;
+    const tracing = process.env.NODE_ENV === 'production' || statusCode !== 500 ? {} : { tracing: err.stack };
     return res.status(statusCode).json({
       status,
       message,
+      ...tracing,
     });
   },
   handleNotFound: (req, _, next) => {

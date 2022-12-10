@@ -4,21 +4,24 @@ const FollowerValidators = require('./follower.validators');
 const { ErrorController } = require('./../error');
 
 router.get(
-  '/user/:userId',
-  FollowerValidators.validateUserId(),
+  '/user/:followerId',
+  FollowerValidators.validateFollowerId(),
   ErrorController.catchValidationError,
-  FollowerController.getFollowerByUserId,
+  FollowerController.getFollowerByFollowerId,
 );
+
+router.post(
+  '/unfollow',
+  FollowerValidators.validateUserIdAndFollowerId(),
+  ErrorController.catchValidationError,
+  FollowerController.deleteFollower,
+);
+
 router
   .route('')
   .post(
     FollowerValidators.validateUserIdAndFollowerId(),
     ErrorController.catchValidationError,
     FollowerController.addFollower,
-  )
-  .delete(
-    FollowerValidators.validateUserIdAndFollowerId(),
-    ErrorController.catchValidationError,
-    FollowerController.deleteFollower,
   );
 module.exports = router;

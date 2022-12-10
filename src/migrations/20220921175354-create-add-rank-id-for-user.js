@@ -7,6 +7,8 @@ module.exports = {
         model: 'ranks',
         key: 'id',
       },
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
     });
   },
   async down(queryInterface, Sequelize) {

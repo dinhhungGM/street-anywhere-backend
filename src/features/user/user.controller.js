@@ -3,6 +3,8 @@ const helper = require('./../../utils/helper');
 const models = require('./../../models');
 const _ = require('lodash');
 const path = require('path');
+const errorUtils = require('./../../utils/error');
+const userConstants = require('./user.constants');
 
 module.exports = {
   getAvatar: catchAsync(async (req, res) => {
@@ -131,5 +133,78 @@ module.exports = {
       throw helper.createError(404, 'No users found');
     }
     return res.header('Content-Type', user.coverImageType).status(200).send(user.coverImageSrc);
+  }),
+  getReactedPostOfUser: catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await models.user.findByPk(+userId);
+    if (_.isNil(user)) {
+      throw errorUtils.createNotFoundError(userConstants.ERROR_NOT_FOUND_USER);
+    }
+    const postReacted = await models.postReaction.findAll({
+      where: {
+        userId: +userId,
+      },
+      include: [
+        {
+          model: models.reaction,
+          attributes: ['reactionType'],
+        },
+      ],
+    });
+    const responseValues = _.map(postReacted, (postReactedInstance) => {
+      const { reaction, ...rest } = postReactedInstance.toJSON();
+      return {
+        postReactionId: rest.id,
+        postId: rest.postId,
+        reactionType: reaction.reactionType,
+      };
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Get reacted post successfully',
+      value: responseValues,
+    });
+  }),
+  getBookmarkedPostOfUser: catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await models.user.findByPk(+userId);
+    if (_.isNil(user)) {
+      throw errorUtils.createNotFoundError(userConstants.ERROR_NOT_FOUND_USER);
+    }
+    const bookmarks = await models.bookmark.findAll({
+      where: {
+        userId: +userId,
+      },
+    });
+    const responseValues = _.map(bookmarks, (bookmarkInstance) => {
+      const { id, ...rest } = bookmarkInstance.toJSON();
+      return {
+        bookmarkId: id,
+        ...rest,
+      };
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Get bookmarked post successfully',
+      value: responseValues,
+    });
+  }),
+
+  getFollowingUsers: catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await models.user.findByPk(+userId);
+    if (_.isNil(user)) {
+      throw errorUtils.createNotFoundError(userConstants.ERROR_NOT_FOUND_USER);
+    }
+    const followingUsers = await models.follower.findAll({
+      where: {
+        userId: +userId,
+      },
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Getting following users successfully',
+      value: followingUsers,
+    });
   }),
 };

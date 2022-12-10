@@ -8,7 +8,7 @@ module.exports = {
       .trim()
       .notEmpty()
       .withMessage('The notification type does not empty')
-      .isIn(['reacted', 'commented', 'bookmarked'])
+      .isIn(['reacted', 'commented', 'bookmarked', 'followed'])
       .withMessage('The notification type is invalid'),
     body('userId')
       .exists()

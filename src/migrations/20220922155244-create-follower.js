@@ -5,20 +5,10 @@ module.exports = {
       userId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        primaryKey: true,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
       },
       followerId: {
         type: Sequelize.INTEGER,
         allowNull: false,
-        primaryKey: true,
-        references: {
-          model: 'users',
-          key: 'id',
-        },
       },
     });
   },
