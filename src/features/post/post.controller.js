@@ -8,11 +8,36 @@ const {
   reaction: Reaction,
   bookmark: Bookmark,
   comment: Comment,
-  postReaction,
 } = require('./../../models');
 const PostUtils = require('./post.utils');
 const { Op } = require('sequelize');
 const _ = require('lodash');
+const stringUtils = require('./../../utils/string');
+const errorUtils = require('./../../utils/error');
+const postConstants = require('./post.constants');
+const dateUtils = require('./../../utils/date');
+
+const constructPostData = (post) => {
+  const { tags, categories, user, reactions, bookmarks, createdAt, updatedAt, ...rest } = post.toJSON();
+  return {
+    ...rest,
+    title: stringUtils.toTitleCase(rest.title),
+    shortTitle: stringUtils.toTitleCase(rest.title),
+    tags: _.map(tags, 'tagName'),
+    categories: _.map(categories, 'categoryName'),
+    imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ rest.id }`,
+    userId: user.id,
+    fullName: stringUtils.getFullName(user),
+    profilePhotoUrl: user.profilePhotoUrl,
+    createdAt: dateUtils.toLocaleString(createdAt),
+    updatedAt: dateUtils.toLocaleString(updatedAt),
+    isHasLocation: PostUtils.isHasLocation(post),
+    reactions: PostUtils.getReactionDetails(reactions),
+    totalReaction: reactions.length,
+    bookmarks: PostUtils.getBookmarkDetails(bookmarks),
+    totalBookmark: bookmarks.length,
+  };
+};
 
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
@@ -59,51 +84,79 @@ module.exports = {
 
   getAllPosts: catchAsync(async (req, res) => {
     const pageSize = 30;
-    const { page, category, tag } = req.query;
-    const filterTag = tag && {
-      where: {
-        id: tag,
-      },
-    };
-    const filterCategory = category && {
-      where: {
-        id: category,
-      },
-    };
+    const { page, category, tag, search } = req.query;
+    const filterSearch = search
+      ? {
+        where: {
+          [Op.or]: [
+            {
+              title: {
+                [Op.iLike]: `%${ search }%`,
+              },
+            },
+            {
+              shortTitle: {
+                [Op.iLike]: `%${ search }%`,
+              },
+            },
+          ],
+        },
+      }
+      : {};
+    const filterTag = tag
+      ? {
+        where: {
+          id: {
+            [Op.or]: _.map(tag.split(','), (id) => +id),
+          },
+        },
+      }
+      : {};
+    const filterCategory = category
+      ? {
+        where: {
+          id: {
+            [Op.or]: _.map(category.split(','), (id) => +id),
+          },
+        },
+      }
+      : {};
     const posts = await Post.findAll({
       attributes: {
         exclude: ['mediaSource', 'updatedAt'],
       },
+      ...filterSearch,
       order: [['createdAt', 'DESC']],
       limit: 30,
       offset: parseInt(page) ? page * pageSize : 0,
       include: [
         {
           model: Tag,
+          attributes: ['tagName'],
           ...filterTag,
         },
         {
           model: Category,
+          attributes: ['categoryName'],
           ...filterCategory,
         },
         {
           model: User,
-          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl']
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
         },
         {
           model: Reaction,
+          attributes: ['id', 'reactionType'],
         },
         {
           model: Bookmark,
         },
-        {
-          model: Comment,
-        },
       ],
     });
+    const responseValues = _.map(posts, (post) => constructPostData(post));
     return res.status(200).json({
       status: 'Success',
-      value: PostUtils.preparePostData(posts),
+      value: responseValues,
     });
   }),
 
@@ -131,29 +184,36 @@ module.exports = {
     const { id } = req.params;
     const post = await Post.findByPk(+id, {
       attributes: {
-        exclude: ['mediaSource'],
+        exclude: ['userId', 'mediaSource'],
       },
       include: [
         {
           model: Tag,
+          attributes: ['tagName'],
         },
         {
           model: Category,
+          attributes: ['categoryName'],
         },
         {
           model: User,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
         },
         {
           model: Reaction,
+          attributes: ['id', 'reactionType'],
+        },
+        {
+          model: Bookmark,
         },
       ],
     });
     if (!post) {
-      throw helper.createError(404, 'No posts found');
+      throw errorUtils.createBadRequestError(postConstants.ERROR_NOT_FOUND_POST);
     }
     return res.status(200).json({
       status: 'Success',
-      value: PostUtils.constructResponseValueForGetPostByPostId(post),
+      value: constructPostData(post),
     });
   }),
 
@@ -203,7 +263,10 @@ module.exports = {
     await post.increment({
       views: 1,
     });
-    return res.status(204).send();
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Incrementing view of post successfully',
+    });
   }),
 
   getTopPosts: catchAsync(async (req, res, next) => {
@@ -326,5 +389,77 @@ module.exports = {
     }
     await post.destroy();
     return res.status(204).send();
+  }),
+
+  getRelevantToPost: catchAsync(async (req, res, next) => {
+    const { categories, hashtags, postId } = req.body;
+    const filterByCategories =
+      categories && categories.length
+        ? {
+          where: {
+            [Op.or]: _.map(categories, (category) => ({
+              categoryName: {
+                [Op.iLike]: `%${ category }%`,
+              },
+            })),
+          },
+        }
+        : {};
+    const filterByHashTags =
+      hashtags && hashtags.length
+        ? {
+          where: {
+            [Op.or]: _.map(hashtags, (tag) => ({
+              tagName: {
+                [Op.iLike]: `%${ tag }%`,
+              },
+            })),
+          },
+        }
+        : {};
+    const relevantPosts = await Post.findAll({
+      attributes: ['id', 'type', 'videoYtbUrl', 'views', 'createdAt'],
+      where: {
+        id: {
+          [Op.ne]: postId,
+        },
+      },
+      order: [
+        ['views', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
+      limit: 10,
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
+        },
+        {
+          model: Tag,
+          ...filterByHashTags,
+        },
+        {
+          model: Category,
+          ...filterByCategories,
+        },
+      ],
+    });
+    const responseValues = _.map(relevantPosts, (postInstance) => {
+      const post = postInstance.toJSON();
+      return {
+        id: post.id,
+        type: post.type,
+        userId: post.user.id,
+        fullName: stringUtils.toTitleCase(`${ post.user.firstName.trim() } ${ post.user.lastName.trim() }`),
+        profilePhotoUrl: post.user.profilePhotoUrl,
+        imageUrl: PostUtils.getImageUrl(post),
+        videoYtbUrl: post.videoYtbUrl,
+      };
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Get relevant post successfully',
+      value: responseValues,
+    });
   }),
 };

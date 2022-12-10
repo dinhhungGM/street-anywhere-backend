@@ -66,4 +66,8 @@ module.exports = {
       .withMessage('Please provide a valid post id. It should be a positive integer')
       .toInt(),
   ],
+  validateRelevantPostPayload: () => [
+    body('categories').exists().withMessage('Please provide categories of post').notEmpty().withMessage('Please provide categories of post'),
+    body('hashtags').exists().withMessage('Please provide tags of post').notEmpty().withMessage('Please provide tags of post'),
+  ],
 };

@@ -1,4 +1,5 @@
 const _ = require('lodash');
+
 module.exports = {
   constructResponseValueForGetPostByUserId: (rawValue) => {
     const { count, rows } = rawValue;
@@ -51,30 +52,29 @@ module.exports = {
     };
     return responseValue;
   },
-  preparePostData: (rawValue) => {
-    return _.map(rawValue, (post) => {
-      const {
-        dataValues: postDataValues,
-        tags,
-        categories,
-        user: { dataValues: userInfo },
-      } = post;
-      const { reactions, bookmarks, comments, ...restInfo } = postDataValues;
-      return {
-        ...restInfo,
-        imageUrl:
-          postDataValues.type === 'video' ? null : `${ process.env.BACKEND_URL }/posts/media/${ postDataValues.id }`,
-        tags: _.map(tags, 'tagName'),
-        categories: _.map(categories, 'categoryName'),
-        user: {
-          userId: userInfo.id,
-          fullName: _.startCase(_.toLower(`${ userInfo.firstName || '' } ${ userInfo.lastName || '' }`)),
-          profilePhotoUrl: userInfo.profilePhotoUrl || `${ process.env.BACKEND_URL }/static/images/avatar.png`,
-        },
-        reactionCount: reactions.length,
-        bookmarkCount: bookmarks.length,
-        commentCount: comments.length,
-      };
-    });
+  getImageUrl: (post) => {
+    return post.type === 'video' ? null : `${ process.env.BACKEND_URL }/posts/media/${ post.id }`;
+  },
+  getReactionDetails: (reactions) => {
+    const groupData = _.groupBy(reactions, 'reactionType');
+    const reactionDetails = [];
+    for (const reaction in groupData) {
+      const detail = groupData[reaction];
+      reactionDetails.push({
+        reactionType: reaction,
+        total: detail.length,
+        reactedUsers: _.map(detail, (item) => ({
+          postReactionId: item.postReaction.id,
+          userId: item.postReaction.userId,
+        })),
+      });
+    }
+    return reactionDetails;
+  },
+  isHasLocation: (post) => {
+    return Boolean(post.location && post.longitude && post.latitude);
+  },
+  getBookmarkDetails: (bookmarks) => {
+    return _.map(bookmarks, (item) => ({ bookmarkId: item.id, userId: item.userId }));
   },
 };

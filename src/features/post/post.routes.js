@@ -4,6 +4,7 @@ const PostController = require('./post.controller');
 const PostValidators = require('./post.validators');
 const uploadFile = require('./../../utils/multer');
 
+router.post('/relevant', PostValidators.validateRelevantPostPayload(), PostController.getRelevantToPost);
 router.get('/reactions', PostController.getPostByReactions);
 router.get('/shorts', PostController.getShorts);
 router.get('/tops', PostController.getTopPosts);
