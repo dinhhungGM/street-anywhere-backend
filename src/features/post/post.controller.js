@@ -23,6 +23,7 @@ const constructPostData = (post) => {
     ...rest,
     title: stringUtils.toTitleCase(rest.title),
     shortTitle: stringUtils.toTitleCase(rest.title),
+    description: rest.description ? decodeURIComponent(rest.description) : null,
     tags: _.map(tags, 'tagName'),
     categories: _.map(categories, 'categoryName'),
     imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ rest.id }`,
