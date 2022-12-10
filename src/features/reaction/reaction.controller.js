@@ -3,13 +3,15 @@ const { post: Post, user: User, reaction: Reaction, postReaction: PostReaction }
 const _ = require('lodash');
 const helper = require('../../utils/helper');
 const ReactionsUtils = require('./reaction.utils');
+const errorUtils = require('./../../utils/error');
+const reactionConstants = require('./reaction.constants');
 
 module.exports = {
   addReaction: catchAsync(async (req, res, next) => {
     const { postId: postIdInParams } = req.params;
     const { postId, userId, reactionId } = req.body;
     if (postIdInParams !== postId) {
-      throw helper.createError(400, 'Post ID in params and Post Id in body are not match');
+      throw errorUtils.createBadRequestError(reactionConstants.ERROR_NOT_MATCH_POST_ID);
     }
     const [checkPost, checkUser, checkReaction] = await Promise.all([
       Post.findByPk(+postId),
@@ -19,18 +21,19 @@ module.exports = {
     if (_.isNil(checkPost) || _.isNil(checkUser) || _.isNil(checkReaction)) {
       let errorMessage;
       if (_.isNil(checkPost)) {
-        errorMessage = 'The post which you wanna add reaction does not exist';
+        errorMessage = reactionConstants.ERROR_NOT_FOUND_POST;
       } else if (_.isNil(checkUser)) {
-        errorMessage = `The user does not exist`;
+        errorMessage = reactionConstants.ERROR_NOT_FOUND_USER;
       } else {
-        errorMessage = `The reaction does not exist`;
+        errorMessage = reactionConstants.ERROR_NOT_FOUND_REACTION;
       }
-      throw helper.createError(400, errorMessage);
+      throw errorUtils.createBadRequestError(errorMessage);
     }
-    await PostReaction.create(req.body);
+    const newReaction = await PostReaction.create(req.body);
     return res.status(201).json({
-      status: 'Success',
-      message: 'Add reaction successfully',
+      status: reactionConstants.STATUS_200,
+      message: reactionConstants.SUCCESS_ADD_REACTION_SUCCESSFULLY,
+      value: newReaction,
     });
   }),
 
