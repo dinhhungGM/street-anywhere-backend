@@ -5,6 +5,7 @@ const _ = require('lodash');
 const path = require('path');
 const errorUtils = require('./../../utils/error');
 const userConstants = require('./user.constants');
+const stringUtils = require('./../../utils/string');
 
 module.exports = {
   getAvatar: catchAsync(async (req, res) => {
@@ -19,7 +20,9 @@ module.exports = {
       throw helper.createError(404, 'No users found');
     }
     if (!user.imgType && !user.photoSource) {
-      return res.status(200).sendFile(path.resolve(__dirname, 'src', 'public', 'images', 'avatar.png'));
+      return res
+        .status(200)
+        .sendFile(path.resolve(__dirname, 'src', 'public', 'images', 'avatar.png'));
     }
     return res.header('Content-Type', user.imgType).status(200).send(user.photoSource);
   }),
@@ -33,6 +36,7 @@ module.exports = {
       phone: 'text',
       email: 'text',
       password: 'password',
+      description: 'text',
     };
     const { userId } = req.params;
     let newInfo = {};
@@ -75,7 +79,7 @@ module.exports = {
           break;
         }
         default: {
-          throw helper.createError(400, `The ${ field } is not a invalid property of user`);
+          throw errorUtils.createBadRequestError(`The ${ field } is not a invalid property of user`);
         }
       }
     }
@@ -205,6 +209,41 @@ module.exports = {
       status: '200: OK',
       message: 'Getting following users successfully',
       value: followingUsers,
+    });
+  }),
+
+  getFollowers: catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await models.user.findByPk(+userId);
+    if (_.isNil(user)) {
+      throw errorUtils.createNotFoundError(userConstants.ERROR_NOT_FOUND_USER);
+    }
+    const [results] = await models.sequelize.query(
+      `SELECT 
+        u.id as "userId", 
+        u."firstName", 
+        u."lastName", 
+        u."profilePhotoUrl" 
+      FROM 
+        followers f 
+      JOIN 
+        users u 
+      ON 
+        u.id = f."userId" 
+      WHERE 
+        f."followerId" = ${ userId }`,
+    );
+    const responseValues = _.map(results, (data) => {
+      const { firstName, lastName, ...rest } = data;
+      return {
+        ...rest,
+        fullName: stringUtils.getFullName(data),
+      };
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Getting followers successfully',
+      value: responseValues,
     });
   }),
 };
