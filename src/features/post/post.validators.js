@@ -18,26 +18,13 @@ module.exports = {
       .withMessage('The short title is not empty')
       .isLength({ max: 50 })
       .withMessage('The short title can not be more than 50 characters'),
-    body('location')
-      .exists()
-      .withMessage('Please provide you location you wanna share')
-      .trim()
-      .notEmpty()
-      .withMessage('The location is not empty'),
+    body('location').optional().trim().notEmpty().withMessage('The location is not empty'),
     body('longitude')
-      .exists()
-      .withMessage('Please provide the longitude of location')
-      .notEmpty()
-      .withMessage('The longitude is not empty')
+      .optional()
       .isNumeric()
-      .withMessage('The longitude is invalid. It should be a numeric value'),
-    body('latitude')
-      .exists()
-      .withMessage('Please provide the latitude of location')
-      .notEmpty()
-      .withMessage('The latitude is not empty')
-      .isNumeric()
-      .withMessage('The latitude is invalid. It should be a numeric value'),
+      .withMessage('The longitude is invalid. It should be a numeric value')
+      .toFloat(),
+    body('latitude').optional().isNumeric().withMessage('The latitude is invalid. It should be a numeric value').toFloat(),
     body('tags')
       .exists()
       .withMessage('A post must have some tags')
@@ -67,7 +54,15 @@ module.exports = {
       .toInt(),
   ],
   validateRelevantPostPayload: () => [
-    body('categories').exists().withMessage('Please provide categories of post').notEmpty().withMessage('Please provide categories of post'),
-    body('hashtags').exists().withMessage('Please provide tags of post').notEmpty().withMessage('Please provide tags of post'),
+    body('categories')
+      .exists()
+      .withMessage('Please provide categories of post')
+      .notEmpty()
+      .withMessage('Please provide categories of post'),
+    body('hashtags')
+      .exists()
+      .withMessage('Please provide tags of post')
+      .notEmpty()
+      .withMessage('Please provide tags of post'),
   ],
 };
