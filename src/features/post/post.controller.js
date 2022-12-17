@@ -18,7 +18,8 @@ const postConstants = require('./post.constants');
 const dateUtils = require('./../../utils/date');
 
 const constructPostData = (post) => {
-  const { tags, categories, user, reactions, bookmarks, createdAt, updatedAt, ...rest } = post.toJSON();
+  const { tags, categories, user, reactions, bookmarks, createdAt, updatedAt, imageUrl, ...rest } =
+    post.toJSON();
   return {
     ...rest,
     title: stringUtils.toTitleCase(rest.title),
@@ -26,7 +27,7 @@ const constructPostData = (post) => {
     description: rest.description ? decodeURIComponent(rest.description) : null,
     tags: _.map(tags, 'tagName'),
     categories: _.map(categories, 'categoryName'),
-    imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ rest.id }`,
+    imageUrl: imageUrl || `${ process.env.BACKEND_URL }/posts/media/${ rest.id }`,
     userId: user.id,
     fullName: stringUtils.getFullName(user),
     profilePhotoUrl: user.profilePhotoUrl,
@@ -57,10 +58,7 @@ module.exports = {
         };
         break;
       }
-      default: {
-        if (!type) {
-          throw helper.createError(400, 'Please provide the type of post');
-        }
+      case 'upload': {
         if (!req.file) {
           throw helper.createError(400, 'Please update image or video to continue');
         }
@@ -70,12 +68,14 @@ module.exports = {
           size,
           type: mimetype,
         };
-        break;
       }
     }
     const postPayload = { ...restInfo, ...mediaPayload };
     const newPost = await Post.create(postPayload);
-    await Promise.all([newPost.addTags(JSON.parse(tags)), newPost.addCategories(JSON.parse(categories))]);
+    await Promise.all([
+      newPost.addTags(JSON.parse(tags)),
+      newPost.addCategories(JSON.parse(categories)),
+    ]);
     return res.status(201).json({
       status: 'Success',
       message: 'Create a new post successfully',
@@ -129,7 +129,7 @@ module.exports = {
       ...filterSearch,
       order: [['createdAt', 'DESC']],
       limit: 30,
-      offset: parseInt(page) ? page * pageSize : 0,
+      offset: parseInt(page) ? (page - 1) * pageSize : 0,
       include: [
         {
           model: Tag,
@@ -451,7 +451,9 @@ module.exports = {
         id: post.id,
         type: post.type,
         userId: post.user.id,
-        fullName: stringUtils.toTitleCase(`${ post.user.firstName.trim() } ${ post.user.lastName.trim() }`),
+        fullName: stringUtils.toTitleCase(
+          `${ post.user.firstName.trim() } ${ post.user.lastName.trim() }`,
+        ),
         profilePhotoUrl: post.user.profilePhotoUrl,
         imageUrl: PostUtils.getImageUrl(post),
         videoYtbUrl: post.videoYtbUrl,
@@ -461,6 +463,18 @@ module.exports = {
       status: '200: OK',
       message: 'Get relevant post successfully',
       value: responseValues,
+    });
+  }),
+
+  getTotalPage: catchAsync(async (req, res) => {
+    const pageSize = 30;
+    const count = await Post.count();
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Counting page successfully',
+      value: {
+        totalPage: Math.ceil(count / pageSize),
+      },
     });
   }),
 };
