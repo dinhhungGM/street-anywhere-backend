@@ -18,21 +18,20 @@ module.exports = {
       .withMessage('The short title is not empty')
       .isLength({ max: 50 })
       .withMessage('The short title can not be more than 50 characters'),
-    body('location').optional().trim().notEmpty().withMessage('The location is not empty'),
+    body('location').optional().trim().notEmpty().withMessage('The location does not empty'),
     body('longitude')
       .optional()
       .isNumeric()
       .withMessage('The longitude is invalid. It should be a numeric value')
       .toFloat(),
-    body('latitude').optional().isNumeric().withMessage('The latitude is invalid. It should be a numeric value').toFloat(),
-    body('tags')
-      .exists()
-      .withMessage('A post must have some tags')
-      .isJSON()
-      .withMessage('Please provide a stringify of tag arrays'),
+    body('latitude')
+      .optional()
+      .isNumeric()
+      .withMessage('The latitude is invalid. It should be a numeric value')
+      .toFloat(),
+    body('tags').optional().isJSON().withMessage('Please provide a stringify of tag arrays'),
     body('categories')
-      .exists()
-      .withMessage('A post must have some categories')
+      .optional()
       .isJSON()
       .withMessage('Please provide a stringify of categories arrays'),
     body('type')
@@ -43,7 +42,10 @@ module.exports = {
     body('videoYtbUrl').optional().trim().notEmpty().withMessage('Please provide the youtube url'),
   ],
   validateUserId: () => [
-    param('userId').trim().isInt('Please provide a valid user id. It should be a positive integer').toInt(),
+    param('userId')
+      .trim()
+      .isInt('Please provide a valid user id. It should be a positive integer')
+      .toInt(),
   ],
   validatePostId: () => [
     param('id')
