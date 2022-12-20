@@ -26,6 +26,7 @@ module.exports = {
     }
     return res.header('Content-Type', user.imgType).status(200).send(user.photoSource);
   }),
+
   updateUser: catchAsync(async (req, res, next) => {
     const UPDATE_TYPE = {
       avatar: 'file',
@@ -94,6 +95,7 @@ module.exports = {
       message: 'Update user successfully',
     });
   }),
+
   getProfileOfUser: catchAsync(async (req, res, next) => {
     const { userId } = req.params;
     let user = await models.user.findByPk(+userId, {
@@ -125,6 +127,7 @@ module.exports = {
       value: user,
     });
   }),
+
   getCoverImage: catchAsync(async (req, res) => {
     const { userId } = req.params;
     const user = await models.user.findByPk(userId, {
@@ -138,6 +141,7 @@ module.exports = {
     }
     return res.header('Content-Type', user.coverImageType).status(200).send(user.coverImageSrc);
   }),
+
   getReactedPostOfUser: catchAsync(async (req, res, next) => {
     const { userId } = req.params;
     const user = await models.user.findByPk(+userId);
@@ -169,6 +173,7 @@ module.exports = {
       value: responseValues,
     });
   }),
+
   getBookmarkedPostOfUser: catchAsync(async (req, res, next) => {
     const { userId } = req.params;
     const user = await models.user.findByPk(+userId);
@@ -244,6 +249,37 @@ module.exports = {
       status: '200: OK',
       message: 'Getting followers successfully',
       value: responseValues,
+    });
+  }),
+
+  getMyImages: catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    const posts = await models.post.findAll({
+      attributes: ['id', 'type', 'imageUrl', 'views', 'createdAt'],
+      order: [
+        ['views', 'DESC'],
+        ['createdAt', 'DESC'],
+      ],
+      where: {
+        userId: +userId,
+      },
+      include: [
+        {
+          model: models.user,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
+        },
+        {
+          model: models.tag,
+        },
+        {
+          model: models.category,
+        },
+      ],
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Get my images successfully',
+      value: posts,
     });
   }),
 };

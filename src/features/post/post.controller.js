@@ -44,7 +44,7 @@ const constructPostData = (post) => {
 module.exports = {
   handleCreateNewPost: catchAsync(async (req, res) => {
     const { tags, categories, type, videoYtbUrl, ...restInfo } = req.body;
-    let mediaPayload;
+    let mediaPayload = {};
     switch (type) {
       case 'video': {
         if (!videoYtbUrl) {
@@ -69,12 +69,22 @@ module.exports = {
           type: mimetype,
         };
       }
+      default: {
+        mediaPayload = {
+          type,
+        };
+        break;
+      }
     }
     const postPayload = { ...restInfo, ...mediaPayload };
     const newPost = await Post.create(postPayload);
+    if (type === 'upload') {
+      newPost.set({ imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ newPost.id }` });
+    }
     await Promise.all([
       newPost.addTags(JSON.parse(tags)),
       newPost.addCategories(JSON.parse(categories)),
+      newPost.save(),
     ]);
     return res.status(201).json({
       status: 'Success',
@@ -210,7 +220,7 @@ module.exports = {
       ],
     });
     if (!post) {
-      throw errorUtils.createBadRequestError(postConstants.ERROR_NOT_FOUND_POST);
+      throw errorUtils.createNotFoundError(postConstants.ERROR_NOT_FOUND_POST);
     }
     return res.status(200).json({
       status: 'Success',
@@ -219,39 +229,48 @@ module.exports = {
   }),
 
   getPostByUserId: catchAsync(async (req, res, next) => {
+    const { mediatype } = req.query;
     const { userId } = req.params;
     const checkUser = await User.findByPk(+userId);
     if (!checkUser) {
       throw helper.createError(404, 'Not found user');
     }
-    const posts = await Post.findAndCountAll({
-      where: {
-        userId: +userId,
-      },
+    const filterMediaType = mediatype ? { type: { [Op.iLike]: `%${ mediatype }%` } } : {};
+    const posts = await Post.findAll({
       attributes: {
         exclude: ['mediaSource', 'updatedAt'],
       },
+      where: {
+        userId: +userId,
+        ...filterMediaType,
+      },
       include: [
         {
-          model: Category,
+          model: Tag,
+          attributes: ['tagName'],
         },
         {
-          model: Tag,
+          model: Category,
+          attributes: ['categoryName'],
+        },
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
         },
         {
           model: Reaction,
+          attributes: ['id', 'reactionType'],
         },
         {
           model: Bookmark,
         },
-        {
-          model: Comment,
-        },
       ],
     });
+    const responseValues = _.map(posts, (post) => constructPostData(post));
     return res.status(200).json({
-      status: 'Success',
-      value: PostUtils.constructResponseValueForGetPostByUserId(posts),
+      status: '200: Ok',
+      message: 'Getting post by user id successfully',
+      value: responseValues,
     });
   }),
 
@@ -267,84 +286,6 @@ module.exports = {
     return res.status(200).json({
       status: '200: OK',
       message: 'Incrementing view of post successfully',
-    });
-  }),
-
-  getTopPosts: catchAsync(async (req, res, next) => {
-    const topPosts = await Post.findAll({
-      attributes: {
-        exclude: ['mediaSource', 'updatedAt'],
-      },
-      order: [['views', 'DESC']],
-      limit: 5,
-      include: [
-        {
-          model: Tag,
-        },
-        {
-          model: Category,
-        },
-        {
-          model: User,
-          attributes: ['id', 'fullName', 'firstName', 'lastName', 'profilePhotoUrl'],
-        },
-        {
-          model: Reaction,
-          attributes: ['id'],
-        },
-        {
-          model: Bookmark,
-          attributes: ['id'],
-        },
-        {
-          model: Comment,
-          attributes: ['id'],
-        },
-      ],
-    });
-    return res.status(200).json({
-      status: 'Success',
-      value: PostUtils.preparePostData(topPosts),
-    });
-  }),
-
-  getShorts: catchAsync(async (req, res, next) => {
-    const shorts = await Post.findAll({
-      where: {
-        type: 'video',
-      },
-      attributes: {
-        exclude: ['mediaSource', 'updatedAt'],
-      },
-      order: [['views', 'DESC']],
-      include: [
-        {
-          model: Tag,
-        },
-        {
-          model: Category,
-        },
-        {
-          model: User,
-          attributes: ['id', 'fullName', 'firstName', 'lastName', 'profilePhotoUrl'],
-        },
-        {
-          model: Reaction,
-          attributes: ['id'],
-        },
-        {
-          model: Bookmark,
-          attributes: ['id'],
-        },
-        {
-          model: Comment,
-          attributes: ['id'],
-        },
-      ],
-    });
-    return res.status(200).json({
-      status: 'Success',
-      value: PostUtils.preparePostData(shorts),
     });
   }),
 
@@ -475,6 +416,180 @@ module.exports = {
       value: {
         totalPage: Math.ceil(count / pageSize),
       },
+    });
+  }),
+
+  findPostBasedOnLocation: catchAsync(async (req, res) => {
+    const { long, lat, radius } = req.query;
+    const { page = 1 } = req.query;
+    const posts = await Post.findAll({
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
+      },
+      order: [
+        ['createdAt', 'desc'],
+        ['views', 'desc'],
+      ],
+      include: [
+        {
+          model: Tag,
+          attributes: ['tagName'],
+        },
+        {
+          model: Category,
+          attributes: ['categoryName'],
+        },
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
+        },
+        {
+          model: Reaction,
+          attributes: ['id', 'reactionType'],
+        },
+        {
+          model: Bookmark,
+        },
+      ],
+    });
+    let responseValues = _.map(posts, (post) => constructPostData(post));
+    responseValues = responseValues.reduce((results, post) => {
+      const { location, longitude, latitude } = post;
+      const isHasLocation = Boolean(location && longitude && latitude);
+      if (!isHasLocation) {
+        return results;
+      }
+      const p1 = { x: +long, y: +lat };
+      const p2 = { x: longitude, y: latitude };
+      const distance = helper.calculateDistance(p1, p2);
+      if (distance <= radius) {
+        results.push({
+          ...post,
+          distance: +distance.toFixed(2),
+        });
+      }
+      return results;
+    }, []);
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Finding all posts near current position successfully',
+      value: responseValues,
+    });
+  }),
+
+  handleUpdatePost: catchAsync(async (req, res) => {
+    const { id } = req.params;
+    const post = await Post.findByPk(+id);
+    if (!post) {
+      throw errorUtils.createNotFoundError(postConstants.ERROR_NOT_FOUND_POST);
+    }
+    if (!Object.keys(req.body).length) {
+      throw errorUtils.createBadRequestError(postConstants.ERROR_CAN_NOT_UPDATE_PORT_WITHOUT_DATA);
+    }
+    const { AllowableField } = postConstants;
+    for (const field of Object.keys(req.body)) {
+      const newVal = req.body[field];
+      switch (field) {
+        case AllowableField.Title: {
+          post.set({
+            title: stringUtils.toTitleCase(newVal),
+            shortTitle: stringUtils.toTitleCase(newVal),
+          });
+          break;
+        }
+        case AllowableField.Location: {
+          post.set({ location: newVal });
+          break;
+        }
+        case AllowableField.Latitude: {
+          post.set({ latitude: +newVal });
+          break;
+        }
+        case AllowableField.Longitude: {
+          post.set({ longitude: +newVal });
+          break;
+        }
+        case AllowableField.Desc: {
+          post.set({
+            description: newVal,
+          });
+          break;
+        }
+        case AllowableField.Categories: {
+          const currCates = await post.getCategories();
+          const listId = _.map(currCates, (item) => {
+            const { id } = item.toJSON();
+            return id;
+          });
+          await post.removeCategories(listId);
+          if (newVal.length) {
+            await post.addCategories(newVal);
+          }
+          break;
+        }
+        case AllowableField.Tags: {
+          const currTags = await post.getTags();
+          const listId = _.map(currTags, (item) => {
+            const { id } = item.toJSON();
+            return id;
+          });
+          await post.removeTags(listId);
+          if (newVal.length) {
+            await post.addTags(newVal);
+          }
+          break;
+        }
+        default: {
+          throw errorUtils.createBadRequestError(`The ${ field } is not a property of post`);
+        }
+      }
+    }
+    await post.save();
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Updating post successfully',
+    });
+  }),
+
+  getShorts: catchAsync(async (req, res) => {
+    const posts = await Post.findAll({
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
+      },
+      where: {
+        type: { [Op.iLike]: `%video%` },
+      },
+      order: [
+        ['createdAt', 'desc'],
+        ['views', 'desc'],
+      ],
+      include: [
+        {
+          model: Tag,
+          attributes: ['tagName'],
+        },
+        {
+          model: Category,
+          attributes: ['categoryName'],
+        },
+        {
+          model: User,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
+        },
+        {
+          model: Reaction,
+          attributes: ['id', 'reactionType'],
+        },
+        {
+          model: Bookmark,
+        },
+      ],
+    });
+    const responseValues = _.map(posts, (post) => constructPostData(post));
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Getting shorts successfully',
+      value: responseValues,
     });
   }),
 };
