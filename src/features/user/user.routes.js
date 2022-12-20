@@ -4,18 +4,38 @@ const UserValidators = require('./user.validators');
 const UserController = require('./user.controller');
 const uploadFile = require('./../../utils/multer');
 
-router.get('/followers/:userId', UserValidators.validateUserId(), UserController.getFollowers);
+router.get(
+  '/my-images/:userId',
+  UserValidators.validateUserId(),
+  ErrorController.catchValidationError,
+  UserController.getMyImages,
+);
+
+router.get(
+  '/followers/:userId',
+  UserValidators.validateUserId(),
+  ErrorController.catchValidationError,
+  UserController.getFollowers,
+);
+
 router.get(
   '/reacted/:userId',
   UserValidators.validateUserId(),
+  ErrorController.catchValidationError,
   UserController.getReactedPostOfUser,
 );
 router.get(
   '/bookmarked/:userId',
   UserValidators.validateUserId(),
+  ErrorController.catchValidationError,
   UserController.getBookmarkedPostOfUser,
 );
-router.get('/following/:userId', UserValidators.validateUserId(), UserController.getFollowingUsers);
+router.get(
+  '/following/:userId',
+  UserValidators.validateUserId(),
+  ErrorController.catchValidationError,
+  UserController.getFollowingUsers,
+);
 
 router.get(
   '/avatar/:userId',

@@ -67,4 +67,54 @@ module.exports = {
       .notEmpty()
       .withMessage('Please provide tags of post'),
   ],
+  validateUpdatePayload: () => [
+    param('id')
+      .exists()
+      .withMessage('Please provide postId to continue')
+      .trim()
+      .notEmpty()
+      .withMessage('The postId does not empty')
+      .isInt()
+      .withMessage('The postId is invalid')
+      .isLength({ min: 1 })
+      .withMessage('The postId can not be a negative value')
+      .toInt(),
+    body('title')
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage('The title does not empty')
+      .isLength({ max: 100 })
+      .withMessage('The title can not have more than 100 characters')
+      .matches(/[a-zA-Z0-9]/)
+      .withMessage('The title can not contain special character'),
+    body('location')
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage('The address does not empty')
+      .matches(/[a-zA-Z0-9]/)
+      .withMessage('The address can not contain special character'),
+    body('longitude')
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage('The longitude does not empty')
+      .isNumeric()
+      .withMessage('The longitude is invalid')
+      .toFloat(),
+    body('latitude')
+      .optional()
+      .trim()
+      .notEmpty()
+      .withMessage('The latitude does not empty')
+      .isNumeric()
+      .withMessage('The latitude is invalid')
+      .toFloat(),
+    body('categories')
+      .optional()
+      .isArray()
+      .withMessage('The categories should be an array of categories'),
+    body('tags').optional().isArray().withMessage('The tags should be an array of tags'),
+  ],
 };

@@ -4,6 +4,8 @@ const PostController = require('./post.controller');
 const PostValidators = require('./post.validators');
 const uploadFile = require('./../../utils/multer');
 
+router.get('/find-around-here', PostController.findPostBasedOnLocation);
+router.get('/shorts', PostController.getShorts);
 router.get('/getTotalPage', PostController.getTotalPage);
 router.post(
   '/relevant',
@@ -11,8 +13,6 @@ router.post(
   PostController.getRelevantToPost,
 );
 router.get('/reactions', PostController.getPostByReactions);
-router.get('/shorts', PostController.getShorts);
-router.get('/tops', PostController.getTopPosts);
 router.patch(
   '/addView/:id',
   PostValidators.validatePostId(),
@@ -37,6 +37,11 @@ router
     PostValidators.validatePostId(),
     ErrorController.catchValidationError,
     PostController.getPostById,
+  )
+  .patch(
+    PostValidators.validateUpdatePayload(),
+    ErrorController.catchValidationError,
+    PostController.handleUpdatePost,
   )
   .delete(
     PostValidators.validatePostId(),
