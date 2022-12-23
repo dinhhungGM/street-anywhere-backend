@@ -4,6 +4,8 @@ const UserValidators = require('./user.validators');
 const UserController = require('./user.controller');
 const uploadFile = require('./../../utils/multer');
 
+router.get('/search-user', UserController.searchUsers);
+
 router.get(
   '/my-images/:userId',
   UserValidators.validateUserId(),
@@ -24,12 +26,14 @@ router.get(
   ErrorController.catchValidationError,
   UserController.getReactedPostOfUser,
 );
+
 router.get(
   '/bookmarked/:userId',
   UserValidators.validateUserId(),
   ErrorController.catchValidationError,
   UserController.getBookmarkedPostOfUser,
 );
+
 router.get(
   '/following/:userId',
   UserValidators.validateUserId(),

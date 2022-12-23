@@ -6,6 +6,8 @@ const path = require('path');
 const errorUtils = require('./../../utils/error');
 const userConstants = require('./user.constants');
 const stringUtils = require('./../../utils/string');
+const { Op } = require('sequelize');
+const { Sequelize } = require('./../../models');
 
 module.exports = {
   getAvatar: catchAsync(async (req, res) => {
@@ -280,6 +282,51 @@ module.exports = {
       status: '200: OK',
       message: 'Get my images successfully',
       value: posts,
+    });
+  }),
+
+  searchUsers: catchAsync(async (req, res) => {
+    const { name } = req.query;
+    if (!name.trim()) {
+      return res.status().json({
+        status: '200',
+        message: 'Handling search users successfully',
+        value: [],
+      });
+    }
+    const users = await models.user.findAll({
+      attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl', 'description'],
+      where: {
+        [Op.or]: {
+          firstName: {
+            [Op.iLike]: `%${ name }%`,
+          },
+          lastName: {
+            [Op.iLike]: `%${ name }%`,
+          },
+        },
+      },
+      include: [
+        {
+          model: models.post,
+          attributes: ['id'],
+        },
+      ],
+    });
+    const results = _.map(users, (ins) => {
+      const { posts } = ins.toJSON();
+      return {
+        userId: ins.id,
+        profilePhotoUrl: ins.profilePhotoUrl,
+        fullName: ins.fullName,
+        totalPost: posts.length,
+        description: ins.description,
+      };
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Handling search users successfully',
+      value: results,
     });
   }),
 };
