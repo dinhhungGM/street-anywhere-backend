@@ -1,6 +1,8 @@
 const catchAsync = require('./../../utils/catchAsync');
 const models = require('./../../models');
 const _ = require('lodash');
+const stringUtils = require('./../../utils/string');
+const { Op } = require('sequelize');
 
 module.exports = {
   calculateDataOfUser: catchAsync(async (req, res, next) => {
@@ -40,7 +42,7 @@ module.exports = {
     }
     return res.status(200).json({
       status: 'Success',
-      value: results,
+      value: responseValues,
     });
   }),
   calculateDataOfPost: catchAsync(async (req, res, next) => {
@@ -83,27 +85,6 @@ module.exports = {
       value: responseValues,
     });
   }),
-  getTopUsersByFollowerCount: catchAsync(async (req, res, next) => {
-    const [results] = await models.sequelize.query(
-      `
-      SELECT u.id, u."firstName", u."lastName", u."profilePhotoUrl", count(*) AS "numberOfFollowers"
-      FROM users u JOIN followers f ON u.id = f."followerId"
-      GROUP BY u.id, u."firstName", u."lastName", u."profilePhotoUrl" 
-      ORDER BY "numberOfFollowers" desc
-      LIMIT 10
-      `,
-    );
-    const responseValues = _.map(results, (data) => ({
-      userId: +data.id,
-      fullName: _.startCase(_.toLower(`${ data.firstName.trim() } ${ data.lastName.trim() }`)),
-      profilePhotoUrl: data.profilePhotoUrl,
-      numberOfFollowers: data.numberOfFollowers,
-    }));
-    return res.status(200).json({
-      status: 'Success',
-      value: responseValues,
-    });
-  }),
   getTopUsersByViewCount: catchAsync(async (req, res, next) => {
     const [results] = await models.sequelize.query(
       `
@@ -124,6 +105,115 @@ module.exports = {
     return res.status(200).json({
       status: 'Success',
       value: responseValues,
+    });
+  }),
+  getTopUsersByFollowerCount: catchAsync(async (req, res) => {
+    const [results] = await models.sequelize.query(
+      `
+      SELECT
+        u."firstName",
+        u."lastName",
+        u."profilePhotoUrl",
+        u."id",
+        COUNT(f."userId") as "totalFollower"
+      FROM
+        followers f,
+        users u
+      WHERE
+        f."followerId" = u.id
+      GROUP BY
+        u."firstName",
+        u."lastName",
+        u."id",
+        u."profilePhotoUrl"
+      ORDER BY
+        "totalFollower" DESC
+      LIMIT
+        10
+      `,
+    );
+    const responseValues = _.map(results, (user) => {
+      const { firstName, lastName, totalFollower, ...rest } = user;
+      return {
+        ...rest,
+        totalFollower: +totalFollower,
+        fullName: stringUtils.getFullName(user),
+      };
+    });
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Handling get top user by follower count successfully',
+      value: responseValues,
+    });
+  }),
+  getTopUserWithTheMostPosts: catchAsync(async (req, res) => {
+    const [results] = await models.sequelize.query(
+      `
+      SELECT
+        u.id,
+        u."firstName",
+        u."lastName",
+        u."profilePhotoUrl",
+        COUNT (p.id) AS "totalPost"
+      FROM
+        users u
+        JOIN posts p ON u.id = p."userId"
+      GROUP BY
+        u.id,
+        u."firstName",
+        u."lastName",
+        u."profilePhotoUrl"
+      ORDER BY
+        "totalPost" DESC
+      LIMIT
+        10
+      `,
+    );
+    const responseValues = _.map(results, (user) => {
+      const { firstName, lastName, totalPost, ...rest } = user;
+      return {
+        ...rest,
+        totalPost: +totalPost,
+        fullName: stringUtils.getFullName(user),
+      };
+    });
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Handling get top user with the most posts successfully',
+      value: responseValues,
+    });
+  }),
+  getAllStatsInfoOfSys: catchAsync(async (req, res) => {
+    const [totalUsers, totalPosts, totalImages, totalVideos, totalReactionIcons, totalCategories] =
+      await Promise.all([
+        models.user.count(),
+        models.post.count(),
+        models.post.count({
+          where: {
+            type: 'video',
+          },
+        }),
+        models.post.count({
+          where: {
+            type: {
+              [Op.iLike]: '%image%',
+            },
+          },
+        }),
+        models.reaction.count(),
+        models.category.count(),
+      ]);
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Handling get stats info of sys successfully',
+      value: {
+        totalUsers,
+        totalPosts,
+        totalImages,
+        totalVideos,
+        totalReactionIcons,
+        totalCategories,
+      },
     });
   }),
 };

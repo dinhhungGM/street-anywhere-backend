@@ -647,6 +647,7 @@ module.exports = {
         ) AS p1
         JOIN posts p2 ON p1."postId" = p2.id
         JOIN users u ON p2."userId" = u.id
+        ORDER BY p1."totalReactions" DESC
       `,
     );
     const responseValues = _.map(results, (data) => {
