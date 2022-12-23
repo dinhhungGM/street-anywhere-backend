@@ -16,6 +16,7 @@ const stringUtils = require('./../../utils/string');
 const errorUtils = require('./../../utils/error');
 const postConstants = require('./post.constants');
 const dateUtils = require('./../../utils/date');
+const models = require('./../../models');
 
 const constructPostData = (post) => {
   const { tags, categories, user, reactions, bookmarks, createdAt, updatedAt, imageUrl, ...rest } =
@@ -589,6 +590,76 @@ module.exports = {
     return res.status(200).json({
       status: '200: Ok',
       message: 'Getting shorts successfully',
+      value: responseValues,
+    });
+  }),
+
+  getTrendingPost: catchAsync(async (req, res) => {
+    const [results] = await models.sequelize.query(
+      `
+      SELECT
+        p2."id",
+        p1."title",
+        p2."shortTitle",
+        p2."description",
+        p2."location",
+        p2."longitude",
+        p2."latitude",
+        p2."videoYtbUrl",
+        p2."views",
+        p2."type",
+        p2."userId",
+        u."firstName",
+        u."lastName",
+        u."profilePhotoUrl",
+        p1."totalReactions",
+        p2."imageUrl"
+      FROM
+        (
+        SELECT
+            t.id as "postId",
+            t.title,
+            SUM(t."reactionCount") as "totalReactions"
+        FROM
+            (
+                SELECT
+                    p.id,
+                    p.title,
+                    r."reactionType",
+                    COUNT(r."reactionType") as "reactionCount"
+                FROM
+                    posts p
+                    JOIN "postReactions" pr ON p.id = pr."postId"
+                    JOIN reactions r ON pr."reactionId" = r.id
+                WHERE
+                    r."reactionType" in ('Love', 'Like')
+                GROUP BY
+                    p.id,
+                    p.title,
+                    r."reactionType",
+                    r."reactionType"
+            ) AS t
+        GROUP BY
+            t.id,
+            t.title
+        ORDER BY
+            "totalReactions" DESC
+        ) AS p1
+        JOIN posts p2 ON p1."postId" = p2.id
+        JOIN users u ON p2."userId" = u.id
+      `,
+    );
+    const responseValues = _.map(results, (data) => {
+      const { firstName, lastName, ...rest } = data;
+      return {
+        ...rest,
+        fullName: stringUtils.getFullName(data),
+        isHasLocation: PostUtils.isHasLocation(data),
+      };
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Handing get trending post successfully',
       value: responseValues,
     });
   }),
