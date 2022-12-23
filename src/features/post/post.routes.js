@@ -4,6 +4,7 @@ const PostController = require('./post.controller');
 const PostValidators = require('./post.validators');
 const uploadFile = require('./../../utils/multer');
 
+router.get('/trending', PostController.getTrendingPost);
 router.get('/find-around-here', PostController.findPostBasedOnLocation);
 router.get('/shorts', PostController.getShorts);
 router.get('/getTotalPage', PostController.getTotalPage);
