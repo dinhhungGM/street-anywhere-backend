@@ -38,6 +38,8 @@ module.exports = (sequelize, DataTypes) => {
       videoYtbUrl: DataTypes.STRING,
       views: DataTypes.INTEGER,
       imageUrl: DataTypes.STRING,
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
     },
     {
       sequelize,
