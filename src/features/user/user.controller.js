@@ -7,7 +7,7 @@ const errorUtils = require('./../../utils/error');
 const userConstants = require('./user.constants');
 const stringUtils = require('./../../utils/string');
 const { Op } = require('sequelize');
-const { Sequelize } = require('./../../models');
+const dateUtils = require('./../../utils/date');
 
 module.exports = {
   getAvatar: catchAsync(async (req, res) => {
@@ -40,6 +40,7 @@ module.exports = {
       email: 'text',
       password: 'password',
       description: 'text',
+      roleId: 'number',
     };
     const { userId } = req.params;
     let newInfo = {};
@@ -53,6 +54,10 @@ module.exports = {
         }
         case 'text': {
           newInfo[field] = value;
+          break;
+        }
+        case 'number': {
+          newInfo[field] = +value;
           break;
         }
         case 'file': {
@@ -182,22 +187,39 @@ module.exports = {
     if (_.isNil(user)) {
       throw errorUtils.createNotFoundError(userConstants.ERROR_NOT_FOUND_USER);
     }
-    const bookmarks = await models.bookmark.findAll({
-      where: {
-        userId: +userId,
+    const bookmarkedPosts = await models.post.findAll({
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
       },
+      order: [['createdAt', 'asc']],
+      include: [
+        {
+          model: models.bookmark,
+          where: {
+            userId: +userId,
+          },
+        },
+        {
+          model: models.user,
+          attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl'],
+        },
+      ],
     });
-    const responseValues = _.map(bookmarks, (bookmarkInstance) => {
-      const { id, ...rest } = bookmarkInstance.toJSON();
+    const resValues = _.map(bookmarkedPosts, (post) => {
+      const { bookmarks, user, createdAt, ...rest } = post.toJSON();
       return {
-        bookmarkId: id,
         ...rest,
+        createdAt: dateUtils.toLocaleString(createdAt),
+        fullName: stringUtils.getFullName(user),
+        profilePhotoUrl: user.profilePhotoUrl,
+        bookmarkId: bookmarks[0].id,
+        isBookmarked: true,
       };
     });
     return res.status(200).json({
       status: '200: OK',
       message: 'Get bookmarked post successfully',
-      value: responseValues,
+      value: resValues,
     });
   }),
 

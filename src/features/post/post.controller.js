@@ -545,6 +545,8 @@ module.exports = {
         }
       }
     }
+
+    post.set({ createdAt: new Date() });
     await post.save();
     return res.status(200).json({
       status: '200: Ok',
