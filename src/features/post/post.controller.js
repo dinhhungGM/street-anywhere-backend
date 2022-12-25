@@ -189,7 +189,7 @@ module.exports = {
     if (!post) {
       throw helper.createError(404, 'The post does not have image!');
     }
-    return res.header('Content-Type', post.type).status(200).send(post.mediaSource);
+    return res.header('Content-Type', 'image/png').status(200).send(post.mediaSource);
   }),
 
   getPostById: catchAsync(async (req, res) => {
