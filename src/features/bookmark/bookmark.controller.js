@@ -15,7 +15,10 @@ const BookmarkUtils = require('./bookmark.utils');
 module.exports = {
   addBookmark: catchAsync(async (req, res, next) => {
     const { userId, postId } = req.body;
-    const [checkUser, checkPost] = await Promise.all([User.findByPk(+userId), Post.findByPk(+postId)]);
+    const [checkUser, checkPost] = await Promise.all([
+      User.findByPk(+userId),
+      Post.findByPk(+postId),
+    ]);
     if (_.isNil(checkUser)) {
       throw helpers.createError(400, 'The user does not exist');
     }
@@ -100,6 +103,27 @@ module.exports = {
     return res.status(200).json({
       status: 'Success',
       value: BookmarkUtils.constructResponseForGettingBookmarkDetails(bookmarkDetails),
+    });
+  }),
+  getBookmarkedPosts: catchAsync(async (req, res) => {
+    const { userId } = req.params;
+    const bookmarkedPosts = await Bookmark.findAll({
+      raw: true,
+      where: {
+        userId: +userId,
+      },
+    });
+    const resValues = _.map(bookmarkedPosts, (data) => {
+      const { id, ...rest } = data;
+      return {
+        bookmarkId: id,
+        ...rest,
+      };
+    });
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Handling get bookmarked post successfully',
+      value: resValues,
     });
   }),
 };
