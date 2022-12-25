@@ -4,6 +4,12 @@ const BookmarkController = require('./bookmark.controller');
 const BookmarkValidators = require('./bookmark.validators');
 
 router.get(
+  '/bookmarked-posts/:userId',
+  BookmarkValidators.validateUserId(),
+  ErrorController.catchValidationError,
+  BookmarkController.getBookmarkedPosts,
+);
+router.get(
   '/user/:userId',
   BookmarkValidators.validateUserId(),
   ErrorController.catchValidationError,
