@@ -3,6 +3,14 @@ const { ErrorController } = require('../error');
 const UserValidators = require('./user.validators');
 const UserController = require('./user.controller');
 const uploadFile = require('./../../utils/multer');
+const errorController = require('../error/error.controller');
+
+router.get(
+  '/follower-count/:userId',
+  UserValidators.validateUserId(),
+  errorController.catchValidationError,
+  UserController.getFollowerCount,
+);
 
 router.get('/search-user', UserController.searchUsers);
 
@@ -18,6 +26,12 @@ router.get(
   UserValidators.validateUserId(),
   ErrorController.catchValidationError,
   UserController.getFollowers,
+);
+router.get(
+  '/followings/:userId',
+  UserValidators.validateUserId(),
+  ErrorController.catchValidationError,
+  UserController.getFollowings,
 );
 
 router.get(

@@ -191,7 +191,7 @@ module.exports = {
       attributes: {
         exclude: ['mediaSource', 'updatedAt'],
       },
-      order: [['createdAt', 'asc']],
+      order: [['createdAt', 'desc']],
       include: [
         {
           model: models.bookmark,
@@ -349,6 +349,61 @@ module.exports = {
       status: '200: OK',
       message: 'Handling search users successfully',
       value: results,
+    });
+  }),
+
+  getFollowerCount: catchAsync(async (req, res) => {
+    const userId = +req.params.userId;
+    const user = await models.user.findByPk(userId);
+    if (!user) {
+      throw errorUtils.createNotFoundError(404, 'Not found user');
+    }
+    const followerCount = await models.follower.count({
+      where: {
+        followerId: userId,
+      },
+    });
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Handling get follower count successfully',
+      value: {
+        followerCount,
+      },
+    });
+  }),
+
+  getFollowings: catchAsync(async (req, res, next) => {
+    const { userId } = req.params;
+    const user = await models.user.findByPk(+userId);
+    if (_.isNil(user)) {
+      throw errorUtils.createNotFoundError(userConstants.ERROR_NOT_FOUND_USER);
+    }
+    const [results] = await models.sequelize.query(
+      `SELECT 
+        u.id as "userId", 
+        u."firstName", 
+        u."lastName", 
+        u."profilePhotoUrl" 
+      FROM 
+        followers f 
+      JOIN 
+        users u 
+      ON 
+        u.id = f."followerId" 
+      WHERE 
+        f."userId" = ${ userId }`,
+    );
+    const responseValues = _.map(results, (data) => {
+      const { firstName, lastName, ...rest } = data;
+      return {
+        ...rest,
+        fullName: stringUtils.getFullName(data),
+      };
+    });
+    return res.status(200).json({
+      status: '200: OK',
+      message: 'Getting followers successfully',
+      value: responseValues,
     });
   }),
 };
