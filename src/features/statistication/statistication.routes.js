@@ -6,6 +6,8 @@ router.get('/total-posts', StatController.calculateDataOfPost);
 router.get('/top-users-by-view-count', StatController.getTopUsersByViewCount);
 router.get('/top-users-by-follower-count', StatController.getTopUsersByFollowerCount);
 router.get('/top-users-with-most-posts', StatController.getTopUserWithTheMostPosts);
+router.get('/top-users-by-sum-interactions', StatController.getTopUsersBySumInteraction);
+router.get('/top-users-by-sum-bookmark', StatController.getTopUsersBySumBookmark);
 router.get('/sys-stats', StatController.getAllStatsInfoOfSys);
 
 module.exports = router;
