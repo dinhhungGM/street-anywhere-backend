@@ -410,7 +410,58 @@ module.exports = {
 
   getTotalPage: catchAsync(async (req, res) => {
     const pageSize = 30;
-    const count = await Post.count();
+    const { category, tag, search } = req.query;
+    const filterSearch = search
+      ? {
+        where: {
+          [Op.or]: [
+            {
+              title: {
+                [Op.iLike]: `%${ search }%`,
+              },
+            },
+            {
+              shortTitle: {
+                [Op.iLike]: `%${ search }%`,
+              },
+            },
+          ],
+        },
+      }
+      : {};
+    const filterTag = tag
+      ? {
+        where: {
+          id: {
+            [Op.or]: _.map(tag.split(','), (id) => +id),
+          },
+        },
+      }
+      : {};
+    const filterCategory = category
+      ? {
+        where: {
+          id: {
+            [Op.or]: _.map(category.split(','), (id) => +id),
+          },
+        },
+      }
+      : {};
+    const count = await Post.count({
+      ...filterSearch,
+      include: [
+        {
+          model: Tag,
+          attributes: ['tagName'],
+          ...filterTag,
+        },
+        {
+          model: Category,
+          attributes: ['categoryName'],
+          ...filterCategory,
+        },
+      ],
+    });
     return res.status(200).json({
       status: '200: Ok',
       message: 'Counting page successfully',
@@ -615,7 +666,8 @@ module.exports = {
         u."lastName",
         u."profilePhotoUrl",
         p1."totalReactions",
-        p2."imageUrl"
+        p2."imageUrl",
+        p2."createdAt"
       FROM
         (
         SELECT
@@ -658,6 +710,7 @@ module.exports = {
         ...rest,
         fullName: stringUtils.getFullName(data),
         isHasLocation: PostUtils.isHasLocation(data),
+        createdAt: dateUtils.toLocaleString(data.createdAt),
       };
     });
     return res.status(200).json({
