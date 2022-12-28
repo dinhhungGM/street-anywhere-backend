@@ -216,4 +216,108 @@ module.exports = {
       },
     });
   }),
+  getTopUsersBySumInteraction: catchAsync(async (req, res) => {
+    const [results] = await models.sequelize.query(
+      `
+      SELECT
+      t.id,
+      (t."firstName" || ' ' || t."lastName") as "fullName",
+      t."profilePhotoUrl",
+      (SUM(t."countReact") + SUM(t."countComment")) AS "totalInteraction"
+    FROM
+      (
+        SELECT
+          u.id,
+          u."firstName",
+          u."lastName",
+          u."profilePhotoUrl",
+          COUNT(pr."reactionId") as "countReact",
+          COUNT(c.id) as "countComment"
+        FROM
+          users u
+          LEFT JOIN "postReactions" pr ON u.id = pr."userId"
+          LEFT JOIN "comments" c ON u.id = c."userId"
+        GROUP BY
+          u.id,
+          u."firstName",
+          u."lastName",
+          u."profilePhotoUrl"
+        HAVING
+          COUNT(pr."reactionId") != 0
+          OR COUNT(c.id) != 0
+      ) as t
+    GROUP BY
+      t.id,
+      t."firstName",
+      t."lastName",
+      t."profilePhotoUrl"
+      `,
+    );
+    const resValues = _.map(results, (data) => {
+      return {
+        ...data,
+        totalInteraction: +data.totalInteraction,
+      };
+    });
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Handling get top users sum interaction count',
+      value: resValues,
+    });
+  }),
+  getTopUsersBySumBookmark: catchAsync(async (req, res) => {
+    const [results] = await models.sequelize.query(
+      `
+      SELECT
+        t.id,
+        (t."firstName" || ' ' || t."lastName") as "fullName",
+        t."profilePhotoUrl",
+        SUM(t."countBookmark") as "totalBookmark"
+      FROM
+      (
+        SELECT
+          u.id,
+          u."firstName",
+          u."lastName",
+          u."profilePhotoUrl",
+          p.title,
+          b.id as "bookmarkId",
+          COUNT(b.id) as "countBookmark"
+        FROM
+          users u
+          JOIN posts p ON u.id = p."userId"
+          JOIN bookmarks b ON p.id = b."postId"
+        GROUP BY
+          u.id,
+          u."firstName",
+          u."lastName",
+          u."profilePhotoUrl",
+          p.title,
+          b.id
+        ORDER BY
+          "countBookmark" DESC
+        LIMIT
+          10
+      ) as t
+      GROUP BY
+        t.id,
+        t."firstName",
+        t."lastName",
+        t."profilePhotoUrl"
+      ORDER BY
+        "totalBookmark" DESC
+      `,
+    );
+    const resValues = _.map(results, (data) => {
+      return {
+        ...data,
+        totalBookmark: +data.totalBookmark,
+      };
+    });
+    return res.status(200).json({
+      status: '200: Ok',
+      message: 'Handling get top users by sum bookmark',
+      value: resValues,
+    });
+  }),
 };
