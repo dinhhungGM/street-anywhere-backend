@@ -251,6 +251,7 @@ module.exports = {
       t."firstName",
       t."lastName",
       t."profilePhotoUrl"
+    ORDER BY "totalInteraction" DESC
       `,
     );
     const resValues = _.map(results, (data) => {
