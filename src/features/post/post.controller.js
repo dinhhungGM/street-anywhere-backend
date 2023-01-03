@@ -361,7 +361,9 @@ module.exports = {
         }
         : {};
     const relevantPosts = await Post.findAll({
-      attributes: ['id', 'type', 'videoYtbUrl', 'views', 'createdAt'],
+      attributes: {
+        exclude: ['mediaSource', 'updatedAt'],
+      },
       where: {
         id: {
           [Op.ne]: postId,
@@ -379,28 +381,24 @@ module.exports = {
         },
         {
           model: Tag,
+          attributes: ['tagName'],
           ...filterByHashTags,
         },
         {
           model: Category,
+          attributes: ['categoryName'],
           ...filterByCategories,
+        },
+        {
+          model: Reaction,
+          attributes: ['id', 'reactionType'],
+        },
+        {
+          model: Bookmark,
         },
       ],
     });
-    const responseValues = _.map(relevantPosts, (postInstance) => {
-      const post = postInstance.toJSON();
-      return {
-        id: post.id,
-        type: post.type,
-        userId: post.user.id,
-        fullName: stringUtils.toTitleCase(
-          `${ post.user.firstName.trim() } ${ post.user.lastName.trim() }`,
-        ),
-        profilePhotoUrl: post.user.profilePhotoUrl,
-        imageUrl: PostUtils.getImageUrl(post),
-        videoYtbUrl: post.videoYtbUrl,
-      };
-    });
+    const responseValues = _.map(relevantPosts, (post) => constructPostData(post));
     return res.status(200).json({
       status: '200: OK',
       message: 'Get relevant post successfully',
