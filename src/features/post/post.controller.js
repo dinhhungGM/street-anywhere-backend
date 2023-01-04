@@ -28,7 +28,7 @@ const constructPostData = (post) => {
     description: rest.description ? decodeURIComponent(rest.description) : null,
     tags: _.map(tags, 'tagName'),
     categories: _.map(categories, 'categoryName'),
-    imageUrl: imageUrl || `${ process.env.BACKEND_URL }/posts/media/${ rest.id }`,
+    imageUrl: imageUrl || `${process.env.BACKEND_URL}/posts/media/${rest.id}`,
     userId: user.id,
     fullName: stringUtils.getFullName(user),
     profilePhotoUrl: user.profilePhotoUrl,
@@ -80,7 +80,7 @@ module.exports = {
     const postPayload = { ...restInfo, ...mediaPayload };
     const newPost = await Post.create(postPayload);
     if (type === 'upload') {
-      newPost.set({ imageUrl: `${ process.env.BACKEND_URL }/posts/media/${ newPost.id }` });
+      newPost.set({ imageUrl: `${process.env.BACKEND_URL}/posts/media/${newPost.id}` });
     }
     await Promise.all([
       newPost.addTags(JSON.parse(tags)),
@@ -99,39 +99,39 @@ module.exports = {
     const { page, category, tag, search } = req.query;
     const filterSearch = search
       ? {
-        where: {
-          [Op.or]: [
-            {
-              title: {
-                [Op.iLike]: `%${ search }%`,
+          where: {
+            [Op.or]: [
+              {
+                title: {
+                  [Op.iLike]: `%${search}%`,
+                },
               },
-            },
-            {
-              shortTitle: {
-                [Op.iLike]: `%${ search }%`,
+              {
+                shortTitle: {
+                  [Op.iLike]: `%${search}%`,
+                },
               },
-            },
-          ],
-        },
-      }
+            ],
+          },
+        }
       : {};
     const filterTag = tag
       ? {
-        where: {
-          id: {
-            [Op.or]: _.map(tag.split(','), (id) => +id),
+          where: {
+            id: {
+              [Op.or]: _.map(tag.split(','), (id) => +id),
+            },
           },
-        },
-      }
+        }
       : {};
     const filterCategory = category
       ? {
-        where: {
-          id: {
-            [Op.or]: _.map(category.split(','), (id) => +id),
+          where: {
+            id: {
+              [Op.or]: _.map(category.split(','), (id) => +id),
+            },
           },
-        },
-      }
+        }
       : {};
     const posts = await Post.findAll({
       attributes: {
@@ -236,7 +236,7 @@ module.exports = {
     if (!checkUser) {
       throw helper.createError(404, 'Not found user');
     }
-    const filterMediaType = mediatype ? { type: { [Op.iLike]: `%${ mediatype }%` } } : {};
+    const filterMediaType = mediatype ? { type: { [Op.iLike]: `%${mediatype}%` } } : {};
     const posts = await Post.findAll({
       attributes: {
         exclude: ['mediaSource', 'updatedAt'],
@@ -339,26 +339,26 @@ module.exports = {
     const filterByCategories =
       categories && categories.length
         ? {
-          where: {
-            [Op.or]: _.map(categories, (category) => ({
-              categoryName: {
-                [Op.iLike]: `%${ category }%`,
-              },
-            })),
-          },
-        }
+            where: {
+              [Op.or]: _.map(categories, (category) => ({
+                categoryName: {
+                  [Op.iLike]: `%${category}%`,
+                },
+              })),
+            },
+          }
         : {};
     const filterByHashTags =
       hashtags && hashtags.length
         ? {
-          where: {
-            [Op.or]: _.map(hashtags, (tag) => ({
-              tagName: {
-                [Op.iLike]: `%${ tag }%`,
-              },
-            })),
-          },
-        }
+            where: {
+              [Op.or]: _.map(hashtags, (tag) => ({
+                tagName: {
+                  [Op.iLike]: `%${tag}%`,
+                },
+              })),
+            },
+          }
         : {};
     const relevantPosts = await Post.findAll({
       attributes: {
@@ -411,39 +411,39 @@ module.exports = {
     const { page, category, tag, search } = req.query;
     const filterSearch = search
       ? {
-        where: {
-          [Op.or]: [
-            {
-              title: {
-                [Op.iLike]: `%${ search }%`,
+          where: {
+            [Op.or]: [
+              {
+                title: {
+                  [Op.iLike]: `%${search}%`,
+                },
               },
-            },
-            {
-              shortTitle: {
-                [Op.iLike]: `%${ search }%`,
+              {
+                shortTitle: {
+                  [Op.iLike]: `%${search}%`,
+                },
               },
-            },
-          ],
-        },
-      }
+            ],
+          },
+        }
       : {};
     const filterTag = tag
       ? {
-        where: {
-          id: {
-            [Op.or]: _.map(tag.split(','), (id) => +id),
+          where: {
+            id: {
+              [Op.or]: _.map(tag.split(','), (id) => +id),
+            },
           },
-        },
-      }
+        }
       : {};
     const filterCategory = category
       ? {
-        where: {
-          id: {
-            [Op.or]: _.map(category.split(','), (id) => +id),
+          where: {
+            id: {
+              [Op.or]: _.map(category.split(','), (id) => +id),
+            },
           },
-        },
-      }
+        }
       : {};
     const posts = await Post.findAll({
       attributes: {
@@ -487,8 +487,15 @@ module.exports = {
 
   findPostBasedOnLocation: catchAsync(async (req, res) => {
     const { long, lat, radius } = req.query;
-    const { page = 1 } = req.query;
     const posts = await Post.findAll({
+      where: {
+        longitude: {
+          [Op.ne]: null,
+        },
+        latitude: {
+          [Op.ne]: null,
+        },
+      },
       attributes: {
         exclude: ['mediaSource', 'updatedAt'],
       },
@@ -520,11 +527,7 @@ module.exports = {
     });
     let responseValues = _.map(posts, (post) => constructPostData(post));
     responseValues = responseValues.reduce((results, post) => {
-      const { location, longitude, latitude } = post;
-      const isHasLocation = Boolean(location && longitude && latitude);
-      if (!isHasLocation) {
-        return results;
-      }
+      const { longitude, latitude } = post;
       const p1 = { x: +long, y: +lat };
       const p2 = { x: longitude, y: latitude };
       const distance = helper.calculateDistance(p1, p2);
@@ -536,6 +539,7 @@ module.exports = {
       }
       return results;
     }, []);
+    responseValues = _.sortBy(responseValues, ['distance']);
     return res.status(200).json({
       status: '200: Ok',
       message: 'Finding all posts near current position successfully',
@@ -606,7 +610,7 @@ module.exports = {
           break;
         }
         default: {
-          throw errorUtils.createBadRequestError(`The ${ field } is not a property of post`);
+          throw errorUtils.createBadRequestError(`The ${field} is not a property of post`);
         }
       }
     }
