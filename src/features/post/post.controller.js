@@ -17,6 +17,7 @@ const errorUtils = require('./../../utils/error');
 const postConstants = require('./post.constants');
 const dateUtils = require('./../../utils/date');
 const models = require('./../../models');
+const path = require('path');
 
 const constructPostData = (post) => {
   const { tags, categories, user, reactions, bookmarks, createdAt, updatedAt, imageUrl, ...rest } =
@@ -186,10 +187,14 @@ module.exports = {
         id: +id,
       },
     });
+    console.log(post);
     if (!post) {
-      throw helper.createError(404, 'The post does not have image!');
+      return res.status(200).sendFile(path.resolve(__dirname, 'img-error.png'));
     }
-    return res.header('Content-Type', 'image/png').status(200).send(post.mediaSource);
+    return res
+      .header('Content-Type', post.type || 'image/png')
+      .status(200)
+      .send(post.mediaSource);
   }),
 
   getPostById: catchAsync(async (req, res) => {
