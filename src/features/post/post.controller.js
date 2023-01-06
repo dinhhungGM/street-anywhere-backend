@@ -70,6 +70,7 @@ module.exports = {
           size,
           type: mimetype,
         };
+        break;
       }
       default: {
         mediaPayload = {
@@ -81,7 +82,9 @@ module.exports = {
     const postPayload = { ...restInfo, ...mediaPayload };
     const newPost = await Post.create(postPayload);
     if (type === 'upload') {
-      newPost.set({ imageUrl: `${process.env.BACKEND_URL}/posts/media/${newPost.id}` });
+      newPost.set({
+        imageUrl: `${process.env.BACKEND_URL}/posts/media/${newPost.id}`,
+      });
     }
     await Promise.all([
       newPost.addTags(JSON.parse(tags)),
@@ -139,7 +142,7 @@ module.exports = {
         exclude: ['mediaSource', 'updatedAt'],
       },
       ...filterSearch,
-      order: [['createdAt', 'DESC']],
+      order: [['id', 'DESC']],
       limit: 30,
       offset: parseInt(page) ? (page - 1) * pageSize : 0,
       include: [
@@ -187,8 +190,7 @@ module.exports = {
         id: +id,
       },
     });
-    console.log(post);
-    if (!post) {
+    if (!post || !(post.type && post.mediaSource)) {
       return res.status(200).sendFile(path.resolve(__dirname, 'img-error.png'));
     }
     return res
