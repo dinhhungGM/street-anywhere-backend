@@ -5,11 +5,11 @@ module.exports = (sequelize, DataTypes) => {
   class user extends Model {
     static associate(models) {
       this.belongsTo(models.role);
+      this.belongsTo(models.rank);
       this.hasMany(models.post, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       this.hasMany(models.comment, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
-      this.belongsTo(models.rank);
-      this.belongsToMany(models.reaction, { through: models.postReaction, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       this.hasMany(models.bookmark, { onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+      this.belongsToMany(models.reaction, { through: models.postReaction, onDelete: 'CASCADE', onUpdate: 'CASCADE' });
       this.belongsToMany(models.user, {
         foreignKey: 'userId',
         as: 'userFollower',

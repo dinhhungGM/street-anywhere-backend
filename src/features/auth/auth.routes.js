@@ -3,6 +3,8 @@ const AuthController = require('./auth.controller');
 const { ErrorController } = require('./../error');
 const AuthValidators = require('./auth.validators');
 
+router.post('/sign-in-by-google', AuthController.handleSignInByGoogle);
+
 router.post(
   '/sign-in',
   AuthValidators.validateSignInPayload(),

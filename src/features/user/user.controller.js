@@ -64,19 +64,19 @@ module.exports = {
           let imageImageInfo = {};
           const file = req.file;
           if (_.isNil(file)) {
-            throw helper.createError(400, `The ${ field } need to a upload file to continue`);
+            throw helper.createError(400, `The ${field} need to a upload file to continue`);
           }
           if (field === 'avatar') {
             imageImageInfo = {
               photoSource: file.buffer,
-              profilePhotoUrl: `${ process.env.BACKEND_URL }/users/avatar/${ userId }`,
+              profilePhotoUrl: `${process.env.BACKEND_URL}/users/avatar/${userId}`,
               imgType: file.mimetype,
             };
           }
           if (field === 'coverImage') {
             imageImageInfo = {
               coverImageSrc: file.buffer,
-              coverImageUrl: `${ process.env.BACKEND_URL }/users/coverImage/${ userId }`,
+              coverImageUrl: `${process.env.BACKEND_URL}/users/coverImage/${userId}`,
               coverImageType: file.mimetype,
             };
           }
@@ -87,7 +87,7 @@ module.exports = {
           break;
         }
         default: {
-          throw errorUtils.createBadRequestError(`The ${ field } is not a invalid property of user`);
+          throw errorUtils.createBadRequestError(`The ${field} is not a invalid property of user`);
         }
       }
     }
@@ -127,11 +127,19 @@ module.exports = {
             },
           ],
         },
+        {
+          model: models.rank,
+          attributes: ['rankName', 'rankLogoUrl'],
+        },
       ],
     });
+    const { rank, ...rest } = user.toJSON();
     return res.status(200).json({
       status: 'Success',
-      value: user,
+      value: {
+        ...rest,
+        ...rank,
+      },
     });
   }),
 
@@ -252,15 +260,20 @@ module.exports = {
         u.id as "userId", 
         u."firstName", 
         u."lastName", 
-        u."profilePhotoUrl" 
+        u."profilePhotoUrl", 
+        r."rankName", 
+        r."rankLogoUrl" 
       FROM 
         followers f 
       JOIN 
         users u 
       ON 
         u.id = f."userId" 
+      JOIN
+        ranks r
+      ON u."rankId" = r.id 
       WHERE 
-        f."followerId" = ${ userId }`,
+        f."followerId" = ${userId}`,
     );
     const responseValues = _.map(results, (data) => {
       const { firstName, lastName, ...rest } = data;
@@ -318,16 +331,16 @@ module.exports = {
     }
     const users = await models.user.findAll({
       attributes: ['id', 'firstName', 'lastName', 'profilePhotoUrl', 'description'],
-      where: {
-        [Op.or]: {
-          firstName: {
-            [Op.iLike]: `%${ name }%`,
-          },
-          lastName: {
-            [Op.iLike]: `%${ name }%`,
-          },
-        },
-      },
+      where: models.Sequelize.where(
+        models.Sequelize.fn(
+          'concat',
+          models.Sequelize.col('firstName'),
+          ' ',
+          models.Sequelize.col('lastName'),
+        ),
+        Op.iLike,
+        `%${name}%`,
+      ),
       include: [
         {
           model: models.post,
@@ -380,18 +393,23 @@ module.exports = {
     }
     const [results] = await models.sequelize.query(
       `SELECT 
-        u.id as "userId", 
-        u."firstName", 
-        u."lastName", 
-        u."profilePhotoUrl" 
-      FROM 
-        followers f 
-      JOIN 
-        users u 
-      ON 
-        u.id = f."followerId" 
-      WHERE 
-        f."userId" = ${ userId }`,
+      u.id as "userId", 
+      u."firstName", 
+      u."lastName", 
+      u."profilePhotoUrl", 
+      r."rankName", 
+      r."rankLogoUrl" 
+    FROM 
+      followers f 
+    JOIN 
+      users u 
+    ON 
+      u.id = f."userId" 
+    JOIN
+      ranks r
+    ON u."rankId" = r.id 
+    WHERE 
+      f."userId" = ${userId}`,
     );
     const responseValues = _.map(results, (data) => {
       const { firstName, lastName, ...rest } = data;

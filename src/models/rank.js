@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
   rank.init(
     {
       rankName: DataTypes.STRING,
+      rankLogoUrl: DataTypes.STRING
     },
     {
       sequelize,

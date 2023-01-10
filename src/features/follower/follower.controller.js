@@ -1,3 +1,4 @@
+require('dotenv').config();
 const models = require('./../../models');
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
@@ -6,17 +7,33 @@ const _ = require('lodash');
 module.exports = {
   addFollower: catchAsync(async (req, res, next) => {
     const { userId, followerId } = req.body;
-    const [user, follower] = await Promise.all([models.user.findByPk(+userId), models.user.findByPk(+followerId)]);
+    const [user, follower] = await Promise.all([
+      models.user.findByPk(+userId),
+      models.user.findByPk(+followerId),
+    ]);
     if (_.isNil(user)) {
       throw helper.createError(404, 'Not found user');
     }
     if (_.isNil(follower)) {
       throw helper.createError(404, 'Not found follower');
     }
-    const newFollower = await models.follower.create({
-      userId: +userId,
-      followerId: +followerId,
-    });
+    const [newFollower, followerCount] = await Promise.all([
+      models.follower.create({
+        userId: +userId,
+        followerId: +followerId,
+      }),
+      models.follower.count({
+        where: {
+          followerId: +followerId,
+        },
+      }),
+    ]);
+    if (followerCount + 1 === +process.env.GOLD_2) {
+      await follower.update({ rankId: +process.env.RANK_GOLD_2 });
+    }
+    if(followerCount + 1 === +process.env.GOLD_3) {
+      await follower.update({ rankId: +process.env.RANK_GOLD_3 });
+    }
     return res.status(201).json({
       status: '201: Created',
       message: 'Follow user successfully',
@@ -25,7 +42,10 @@ module.exports = {
   }),
   deleteFollower: catchAsync(async (req, res, next) => {
     const { userId, followerId } = req.body;
-    const [user, follower] = await Promise.all([models.user.findByPk(+userId), models.user.findByPk(+followerId)]);
+    const [user, follower] = await Promise.all([
+      models.user.findByPk(+userId),
+      models.user.findByPk(+followerId),
+    ]);
     if (_.isNil(user)) {
       throw helper.createError(404, 'Not found user');
     }
@@ -53,13 +73,13 @@ module.exports = {
       `
       SELECT u.id, u."firstName", u."lastName", u."profilePhotoUrl" 
       FROM followers f JOIN users u ON f."userId" = u."id"
-      WHERE f."followerId" = ${ followerId }
+      WHERE f."followerId" = ${followerId}
       `,
     );
     // Construct data
     let responseValues = _.map(results, (user) => ({
       userId: user.id,
-      fullName: _.startCase(_.toLower(`${ user.firstName.trim() } ${ user.lastName.trim() }`)),
+      fullName: _.startCase(_.toLower(`${user.firstName.trim()} ${user.lastName.trim()}`)),
       profilePhotoUrl: user.profilePhotoUrl,
     }));
     // Remove duplicate
