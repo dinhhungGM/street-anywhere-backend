@@ -1,8 +1,10 @@
+require('dotenv').config();
 const _ = require('lodash');
 const catchAsync = require('./../../utils/catchAsync');
 const helper = require('./../../utils/helper');
 const models = require('./../../models');
 const authUtils = require('./auth.utils');
+const errorUtils = require('./../../utils/error');
 
 module.exports = {
   handleSignIn: catchAsync(async (req, res, next) => {
@@ -17,7 +19,10 @@ module.exports = {
     if (_.isNil(findingUser)) {
       throw helper.createError(404, 'Not found user');
     }
-    const isPasswordMatch = await helper.isPasswordMatch(requestPayload.password, findingUser.password);
+    const isPasswordMatch = await helper.isPasswordMatch(
+      requestPayload.password,
+      findingUser.password,
+    );
     if (!isPasswordMatch) {
       throw helper.createError(403, 'Username or password is incorrect');
     }
@@ -39,5 +44,46 @@ module.exports = {
       status: 'Success',
       value: authUtils.constructResponseSignUp({ ...newUser.toJSON(), role: role.toJSON() }),
     });
+  }),
+
+  handleSignInByGoogle: catchAsync(async (req, res) => {
+    const { firstName, lastName, email, profilePhotoUrl, ...rest } = req.body;
+    if (Object.keys(rest).length) {
+      const invalidFields = Object.keys(rest).join(',');
+      throw errorUtils.createBadRequestError(`Invalid fields: ${invalidFields}`);
+    }
+    const user = await models.user.findOne({
+      where: {
+        email,
+      },
+      include: [
+        {
+          model: models.role,
+        },
+      ],
+    });
+    if (!user) {
+      const newUser = await models.user.create({
+        username: email,
+        password: email,
+        firstName,
+        lastName,
+        email,
+        profilePhotoUrl,
+        rankId: +process.env.RANK_GOLD_1,
+        roleId: +process.env.ROLE_END_USER,
+      });
+      const [role, rank] = await Promise.all([newUser.getRole(), newUser.getRank()]);
+      const { password, coverImageSrc, photoSource, imgType, rankId, ...user } = newUser.toJSON();
+      return res.status(200).json({
+        status: 'Success',
+        value: authUtils.constructResponseSignInPayload({ ...user, role, rank }),
+      });
+    } else {
+      return res.status(200).json({
+        status: 'Success',
+        value: authUtils.constructResponseSignInPayload(user.toJSON()),
+      });
+    }
   }),
 };

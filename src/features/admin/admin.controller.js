@@ -44,6 +44,10 @@ module.exports = {
         {
           model: models.post,
         },
+        {
+          model: models.rank,
+          attributes: ['rankName', 'rankLogoUrl']
+        },
       ],
     });
     return res.status(200).json({
