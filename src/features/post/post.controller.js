@@ -252,6 +252,7 @@ module.exports = {
         userId: +userId,
         ...filterMediaType,
       },
+      order: [['id', 'DESC']],
       include: [
         {
           model: Tag,
